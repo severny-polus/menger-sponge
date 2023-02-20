@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>fractals</title>
+    <script src="elm.js"></script>
+</head>
+
+<body>
+<div id="myapp"></div>
+<script>
+    const app = Elm.Main.init({
+        node: document.getElementById('myapp')
+    })
+    const canvas = document.getElementById('canvas')
+    canvas.addEventListener("click", async () => {
+        await canvas.requestPointerLock({
+            unadjustedMovement: true
+        });
+    });
+</script>
+</body>
+</html>
