@@ -83,8 +83,13 @@ subscriptions _ =
     ]
 
 
-maxVelocity : Float
-maxVelocity =
+velocityValue : Float
+velocityValue =
+  1
+
+
+ctrlVelocityValue : Float
+ctrlVelocityValue =
   3
 
 
@@ -108,8 +113,7 @@ updateVelocity model =
   in
   { model
   | velocity =
-    Vec3.scale maxVelocity
-      <| velocityDirection
+      velocity
         (Mat4.transform rotate model.worldRight)
         model.worldUp
         (Mat4.transform rotate model.worldForward)
@@ -145,27 +149,28 @@ update msg model =
         else
           { model
           | position =
-            Vec3.add
-              model.position
-              (Vec3.scale (dt / 1000) model.velocity)
+              Vec3.add
+                model.position
+                (Vec3.scale (dt / 1000) model.velocity)
           }
       , Cmd.none
       )
 
     KeyOp pressed key False ->
       ( { model | pressedKeys = updateKeys pressed key model.pressedKeys }
-        |> updateVelocity
+          |> updateVelocity
       , Cmd.none
       )
 
-    KeyOp _ _ True ->
+    KeyOp _ _ _ ->
       ( model, Cmd.none )
 
     MouseMove dx dy ->
       ( { model
         | phi = model.phi + sensitivity * toFloat dx
         , theta = max (-pi / 2) <| min (pi / 2) <| model.theta + sensitivity * toFloat dy
-        } |> updateVelocity
+        }
+          |> updateVelocity
       , Cmd.none
       )
 
@@ -208,6 +213,7 @@ type alias Size =
 
 
 mesh : Mesh Shaders.Attributes
+
 mesh =
   WebGL.triangles
     [ ( Shaders.attributes -1 -1
@@ -228,6 +234,7 @@ type alias PressedKeys =
   , right : Bool
   , up : Bool
   , down : Bool
+  , speedUp : Bool
   }
 
 
@@ -239,6 +246,7 @@ initKeys =
   , right = False
   , up = False
   , down = False
+  , speedUp = False
   }
 
 
@@ -251,11 +259,17 @@ updateKeys pressed key keys =
     "d" -> { keys | right = pressed }
     " " -> { keys | up = pressed }
     "Shift" -> { keys | down = pressed }
+    "CapsLock" ->
+      if pressed then
+        { keys | speedUp = not keys.speedUp }
+      else
+        keys
+
     _ -> keys
 
 
-velocityDirection : Vec3 -> Vec3 -> Vec3 -> PressedKeys -> Vec3
-velocityDirection right up forward keys =
+velocity : Vec3 -> Vec3 -> Vec3 -> PressedKeys -> Vec3
+velocity right up forward keys =
   let
     direction =
       List.foldl Vec3.add (vec3 0 0 0)
@@ -263,12 +277,20 @@ velocityDirection right up forward keys =
         , vecOrZero keys.backward <| Vec3.negate forward
         , vecOrZero keys.left <| Vec3.negate right
         , vecOrZero keys.right right
+        , vecOrZero keys.up up
+        , vecOrZero keys.down <| Vec3.negate up
         ]
   in
   if direction == vec3 0 0 0 then
-    direction
+    vec3 0 0 0
   else
-    Vec3.normalize direction
+    Vec3.scale
+      ( if keys.speedUp then
+          ctrlVelocityValue
+        else
+          velocityValue
+      )
+      <| Vec3.normalize direction
 
 
 vecOrZero : Bool -> Vec3 -> Vec3
