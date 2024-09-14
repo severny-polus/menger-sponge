@@ -228,15 +228,11 @@ root =
 
 mesh : Mesh Shaders.Attributes
 mesh =
-    WebGL.triangles
-        [ ( Shaders.attributes -1 -1
-          , Shaders.attributes -1 1
-          , Shaders.attributes 1 1
-          )
-        , ( Shaders.attributes -1 -1
-          , Shaders.attributes 1 1
-          , Shaders.attributes 1 -1
-          )
+    WebGL.triangleFan
+        [ Shaders.attributes -1 -1
+        , Shaders.attributes -1 1
+        , Shaders.attributes 1 1
+        , Shaders.attributes 1 -1
         ]
 
 

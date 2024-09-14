@@ -59,7 +59,7 @@ fragment =
         float radius;
     };
 
-    float SphereDistance(vec3 point, Sphere sphere) {
+    float sphereDistance(vec3 point, Sphere sphere) {
         return abs(distance(point, sphere.center) - sphere.radius);
     }
 
@@ -68,7 +68,7 @@ fragment =
         float side;
     };
 
-    float CubeDistance(vec3 point, Cube cube) {
+    float cubeDistance(vec3 point, Cube cube) {
         vec3 corner = abs(cube.center - point) - 0.5 * cube.side;
         if (corner.x < 0.0 && corner.y < 0.0 && corner.z < 0.0) {
             return min(abs(corner.x), min(abs(corner.y), abs(corner.z)));
@@ -76,15 +76,15 @@ fragment =
         return length(max(corner, 0.0));
     }
 
-    float PlaneDistance(vec3 point, vec4 plane) {
+    float planeDistance(vec3 point, vec4 plane) {
         return max((dot(point, plane.xyz) + plane.w) / dot(plane.xyz, plane.xyz), 0.0);
     }
 
-    vec3 Mod(float value, vec3 point) {
+    vec3 mod3(float value, vec3 point) {
         return mod(point, value);
     }
 
-    vec3 Reflect(vec3 point, vec4 plane) {
+    vec3 mirror(vec3 point, vec4 plane) {
         float relation = dot(position, plane.xyz) + plane.w;
         if (relation < 0.0) {
             return point - 2.0 * relation * plane.xyz / dot(plane.xyz, plane.xyz);
@@ -92,23 +92,23 @@ fragment =
         return point;
     }
 
-    vec3 Shift(vec3 point, vec4 plane, float shift) {
+    vec3 shift(vec3 point, vec4 plane, float by) {
         float relation = dot(position, plane.xyz) + plane.w;
         if (relation < 0.0) {
-            return point + plane.xyz * shift;
+            return point + plane.xyz * by;
         }
         return point;
     }
 
-    vec3 Shrink(float value, vec3 origin, vec3 point) {
+    vec3 shrink(float value, vec3 origin, vec3 point) {
         return origin + value * (point - origin);
     }
 
-    vec3 Triflect(vec3 origin, vec3 point) {
+    vec3 mirror3(vec3 origin, vec3 point) {
         return origin + abs(point - origin);
     }
 
-    vec3 Triplicate(vec3 origin, vec3 point) {
+    vec3 replicate3(vec3 origin, vec3 point) {
         vec3 p = point - origin;
         float m = min(p.x, min(p.y, p.z));
         if (m > 0.0) {
@@ -136,12 +136,12 @@ fragment =
         float glowStrength;
     };
 
-    vec3 Shape(int step, Material material) {
+    vec3 objectColor(int step, Material material) {
         float a = material.glow.a * pow(float(step) / float(maxSteps), 1.0 - material.glowStrength);
         return material.glow.rgb * a + material.color * (1.0 - a);
     }
 
-    vec3 Glow(float minDistance, vec3 background, Material material) {
+    vec3 backgroundColor(float minDistance, vec3 background, Material material) {
         float a = material.glow.a * exp(-minDistance / material.glowDistance);
         return material.glow.rgb * a + background * (1.0 - a);
     }
@@ -157,29 +157,29 @@ fragment =
 
     const int iters = 12;
 
-    float Distance(vec3 point) {
+    float mengerSpongeDistance(vec3 point) {
         float shrinkFactor = 3.0;
         for (int i = 0; i < iters; i++) {
-            point = Triflect(center, point);
-            point = Triplicate(center + vec3(size / 6.0), point);
-            point = Shrink(shrinkFactor, center + vec3(size / 2.0), point);
+            point = mirror3(center, point);
+            point = replicate3(center + vec3(size / 6.0), point);
+            point = shrink(shrinkFactor, center + vec3(size / 2.0), point);
         }
-        return CubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iters));
+        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iters));
     }
 
-    vec3 March(vec3 direction, vec3 position, Material material) {
+    vec3 march(vec3 direction, vec3 position, Material material) {
         float minDistance = 2000000000.0;
         float distanceWalked = 0.;
         for (int i = 0; i < maxSteps; i++) {
-            float dist = Distance(position);
+            float dist = mengerSpongeDistance(position);
             minDistance = min(minDistance, dist);
             if (dist < minHitDistance * distanceWalked) {
-                return Shape(i, material);
+                return objectColor(i, material);
             }
             position = position + dist * direction;
             distanceWalked += dist;
         }
-        return Glow(minDistance, background, material);
+        return backgroundColor(minDistance, background, material);
     }
 
     const float fov = 120.;
@@ -187,7 +187,7 @@ fragment =
 
     void main() {
         vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));
-        vec3 color = March(direction, position, minecraftSponge);
+        vec3 color = march(direction, position, minecraftSponge);
         gl_FragColor = vec4(color, 1);
     }
     |]
