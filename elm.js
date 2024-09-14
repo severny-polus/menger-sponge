@@ -7834,7 +7834,7 @@ var $author$project$Player$rotate = F3(
 				bk: $author$project$Orientation$view(orientation)
 			});
 	});
-var $author$project$Main$sensitivity = 4 / 1920;
+var $author$project$Main$sensitivity = 16 / 1920;
 var $elm$core$Basics$not = _Basics_not;
 var $author$project$Main$updateKeys = F3(
 	function (pressed, key, keys) {
