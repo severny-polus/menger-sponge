@@ -18,7 +18,7 @@ attributes x y =
 
 
 type alias Uniforms =
-    { ratio : Float
+    { aspectRatio : Float
     , position : Vec3
     , view : Mat4
     , center : Vec3
@@ -47,7 +47,7 @@ fragment : WebGL.Shader {} Uniforms Varyings
 fragment =
     [glsl|
     precision mediump float;
-    uniform float ratio;
+    uniform float aspectRatio;
     uniform vec3 position;
     uniform mat4 view;
     uniform vec3 center;
@@ -180,9 +180,11 @@ fragment =
         return Glow(minDistance, background, material);
     }
 
+    const float fov = 120.;
+    const float z = 1. / tan(radians(fov) / 2.);
+
     void main() {
-        float z = 0.7;
-        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / ratio, z));
+        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));
         vec3 color = March(direction, position, minecraftSponge);
         gl_FragColor = vec4(color, 1);
     }

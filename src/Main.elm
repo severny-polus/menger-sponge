@@ -203,7 +203,7 @@ view model =
                     Shaders.vertex
                     Shaders.fragment
                     mesh
-                    { ratio = toFloat model.canvasSize.width / toFloat model.canvasSize.height
+                    { aspectRatio = toFloat model.canvasSize.width / toFloat model.canvasSize.height
                     , position = model.player.position
                     , view = model.player.view
                     , center = vec3 0 0 0
