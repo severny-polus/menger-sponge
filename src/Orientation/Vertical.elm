@@ -11,15 +11,6 @@ type alias Vertical =
     }
 
 
-implOrientation : Vertical -> Orientation Vertical
-implOrientation vertical =
-    { impl = vertical
-    , basis = basis
-    , view = view
-    , rotate = rotate
-    }
-
-
 basis : Vertical -> Mat4
 basis vertical =
     Mat4.makeRotate vertical.phi World.up
@@ -51,4 +42,13 @@ rotate dphi dtheta vertical =
         else
             phi
     , theta = max (-pi / 2) <| min theta (pi / 2)
+    }
+
+
+asOrientation : Vertical -> Orientation Vertical
+asOrientation vertical =
+    { impl = vertical
+    , basis = basis
+    , view = view
+    , rotate = rotate
     }

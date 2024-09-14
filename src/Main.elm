@@ -16,47 +16,72 @@ import Task
 import WebGL exposing (Mesh)
 
 
-main : Program () Model Msg
-main =
-    Browser.element
-        { init = init
-        , update = update
-        , view = view
-        , subscriptions = subscriptions
-        }
+type alias Size =
+    { width : Int
+    , height : Int
+    }
+
+
+type alias Keys =
+    { forward : Bool
+    , backward : Bool
+    , left : Bool
+    , right : Bool
+    , up : Bool
+    , down : Bool
+    , speedUp : Bool
+    }
+
+
+initKeys : Keys
+initKeys =
+    { forward = False
+    , backward = False
+    , left = False
+    , right = False
+    , up = False
+    , down = False
+    , speedUp = False
+    }
+
+
+updateKeys : Bool -> String -> Keys -> Keys
+updateKeys pressed key keys =
+    case key of
+        "w" ->
+            { keys | forward = pressed }
+
+        "s" ->
+            { keys | backward = pressed }
+
+        "a" ->
+            { keys | left = pressed }
+
+        "d" ->
+            { keys | right = pressed }
+
+        " " ->
+            { keys | up = pressed }
+
+        "Shift" ->
+            { keys | down = pressed }
+
+        "CapsLock" ->
+            if pressed then
+                { keys | speedUp = not keys.speedUp }
+
+            else
+                keys
+
+        _ ->
+            keys
 
 
 type alias Model =
     { canvasSize : Size
     , pressedKeys : Keys
     , player : Player Vertical
-    , phi : Float
-    , theta : Float
-    , worldForward : Vec3
-    , worldRight : Vec3
-    , worldUp : Vec3
     }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { canvasSize = { width = 0, height = 0 }
-      , pressedKeys = initKeys
-      , player =
-            Player.init (vec3 -6 -12 -30) <|
-                Vertical.implOrientation
-                    { phi = 0
-                    , theta = 0
-                    }
-      , phi = 0
-      , theta = 0
-      , worldRight = vec3 1 0 0
-      , worldUp = vec3 0 1 0
-      , worldForward = vec3 0 0 1
-      }
-    , Browser.Dom.getElement root
-        |> Task.attempt Element
-    )
 
 
 type Msg
@@ -65,6 +90,22 @@ type Msg
     | Frame Float
     | KeyOp Bool String Bool
     | MouseMove Int Int
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { canvasSize = { width = 0, height = 0 }
+      , pressedKeys = initKeys
+      , player =
+            Player.init (vec3 -6 -12 -30) <|
+                Vertical.asOrientation
+                    { phi = 0
+                    , theta = 0
+                    }
+      }
+    , Browser.Dom.getElement root
+        |> Task.attempt Element
+    )
 
 
 subscriptions : Model -> Sub Msg
@@ -185,6 +226,20 @@ root =
     "root"
 
 
+mesh : Mesh Shaders.Attributes
+mesh =
+    WebGL.triangles
+        [ ( Shaders.attributes -1 -1
+          , Shaders.attributes -1 1
+          , Shaders.attributes 1 1
+          )
+        , ( Shaders.attributes -1 -1
+          , Shaders.attributes 1 1
+          , Shaders.attributes 1 -1
+          )
+        ]
+
+
 view : Model -> Html Msg
 view model =
     Element.layout
@@ -212,76 +267,11 @@ view model =
                 ]
 
 
-type alias Size =
-    { width : Int
-    , height : Int
-    }
-
-
-mesh : Mesh Shaders.Attributes
-mesh =
-    WebGL.triangles
-        [ ( Shaders.attributes -1 -1
-          , Shaders.attributes -1 1
-          , Shaders.attributes 1 1
-          )
-        , ( Shaders.attributes -1 -1
-          , Shaders.attributes 1 1
-          , Shaders.attributes 1 -1
-          )
-        ]
-
-
-type alias Keys =
-    { forward : Bool
-    , backward : Bool
-    , left : Bool
-    , right : Bool
-    , up : Bool
-    , down : Bool
-    , speedUp : Bool
-    }
-
-
-initKeys : Keys
-initKeys =
-    { forward = False
-    , backward = False
-    , left = False
-    , right = False
-    , up = False
-    , down = False
-    , speedUp = False
-    }
-
-
-updateKeys : Bool -> String -> Keys -> Keys
-updateKeys pressed key keys =
-    case key of
-        "w" ->
-            { keys | forward = pressed }
-
-        "s" ->
-            { keys | backward = pressed }
-
-        "a" ->
-            { keys | left = pressed }
-
-        "d" ->
-            { keys | right = pressed }
-
-        " " ->
-            { keys | up = pressed }
-
-        "Shift" ->
-            { keys | down = pressed }
-
-        "CapsLock" ->
-            if pressed then
-                { keys | speedUp = not keys.speedUp }
-
-            else
-                keys
-
-        _ ->
-            keys
+main : Program () Model Msg
+main =
+    Browser.element
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
