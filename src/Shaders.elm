@@ -127,7 +127,7 @@ fragment =
     }
 
     const int maxSteps = 50;
-    const float hitDistance = 0.001;
+    const float minHitDistance = 0.001;
 
     struct Material {
         vec3 color;
@@ -155,7 +155,7 @@ fragment =
         0.0
     );
 
-    const int iters = 9;
+    const int iters = 12;
 
     float Distance(vec3 point) {
         float shrinkFactor = 3.0;
@@ -169,13 +169,15 @@ fragment =
 
     vec3 March(vec3 direction, vec3 position, Material material) {
         float minDistance = 2000000000.0;
+        float distanceWalked = 0.;
         for (int i = 0; i < maxSteps; i++) {
-            float distance = Distance(position);
-            minDistance = min(minDistance, distance);
-            if (distance < hitDistance) {
+            float dist = Distance(position);
+            minDistance = min(minDistance, dist);
+            if (dist < minHitDistance * distanceWalked) {
                 return Shape(i, material);
             }
-            position = position + distance * direction;
+            position = position + dist * direction;
+            distanceWalked += dist;
         }
         return Glow(minDistance, background, material);
     }
