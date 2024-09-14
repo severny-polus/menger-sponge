@@ -127,7 +127,7 @@ fragment =
     }
 
     const int maxSteps = 50;
-    const float minHitDistance = 0.001;
+    const float minHitDistance = 0.0005;
 
     struct Material {
         vec3 color;
@@ -149,7 +149,7 @@ fragment =
     vec3 background = vec3(0.0, 0.2, 0.5);
 
     Material minecraftSponge = Material(
-        vec3(1, 0.8, 0.1),
+        vec3(1, 0.7, 0.2),
         vec4(0.0, 0.2, 0.0, 1),
         2.0,
         0.0
