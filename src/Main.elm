@@ -99,7 +99,7 @@ init _ =
       , player =
             Player.init (vec3 0 0 0) <|
                 Vertical.asOrientation
-                    { phi = 0
+                    { phi = pi / 4
                     , theta = 0
                     }
       }

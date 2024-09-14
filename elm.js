@@ -7146,7 +7146,7 @@ var $author$project$Main$init = function (_v0) {
 				$author$project$Player$init,
 				A3($elm_explorations$linear_algebra$Math$Vector3$vec3, 0, 0, 0),
 				$author$project$Orientation$Vertical$asOrientation(
-					{dC: 0, d8: 0})),
+					{dC: $elm$core$Basics$pi / 4, d8: 0})),
 			aS: $author$project$Main$initKeys
 		},
 		A2(
