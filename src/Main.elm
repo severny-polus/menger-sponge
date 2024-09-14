@@ -8,7 +8,6 @@ import Element
 import Html exposing (Html)
 import Html.Attributes exposing (height, id, width)
 import Json.Decode as Decode
-import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
 import Orientation.Vertical as Vertical exposing (Vertical)
 import Player exposing (Player)

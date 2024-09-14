@@ -1,7 +1,6 @@
 module World exposing (..)
 
-import Math.Matrix4 as Mat4 exposing (Mat4)
-import Math.Vector3 as Vec3 exposing (Vec3, vec3)
+import Math.Vector3 exposing (Vec3, vec3)
 
 
 right : Vec3

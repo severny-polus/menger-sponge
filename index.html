@@ -11,12 +11,16 @@
 <script>
     const app = Elm.Main.init({
         node: document.getElementById('myapp')
-    })
+    });
     const canvas = document.getElementById('canvas')
     canvas.addEventListener("click", async () => {
         await canvas.requestPointerLock({
-            unadjustedMovement: true
+            unadjustedMovement: true,
         });
+    });
+    window.addEventListener("beforeunload", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
     });
 </script>
 </body>

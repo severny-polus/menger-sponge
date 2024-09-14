@@ -1,11 +1,8 @@
 module Player exposing (..)
 
-import List exposing (foldl)
 import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
-import Orientation exposing (Orientation, view)
-import Orientation.Vertical exposing (Vertical)
-import World
+import Orientation exposing (Orientation)
 
 
 type alias Player a =
