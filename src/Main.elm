@@ -130,7 +130,7 @@ subscriptions _ =
 
 sensitivity : Float
 sensitivity =
-    pi * 0.0005
+    4 / 1920
 
 
 boolToFloat : Bool -> Float
