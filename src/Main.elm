@@ -97,7 +97,7 @@ init _ =
     ( { canvasSize = { width = 0, height = 0 }
       , pressedKeys = initKeys
       , player =
-            Player.init (vec3 -6 -12 -30) <|
+            Player.init (vec3 0 0 0) <|
                 Vertical.asOrientation
                     { phi = 0
                     , theta = 0
@@ -258,7 +258,7 @@ view model =
                     , position = model.player.position
                     , view = model.player.view
                     , center = vec3 0 0 0
-                    , size = 81
+                    , size = 2
                     }
                 ]
 

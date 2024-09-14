@@ -7144,7 +7144,7 @@ var $author$project$Main$init = function (_v0) {
 			O: {aa: 0, ae: 0},
 			w: A2(
 				$author$project$Player$init,
-				A3($elm_explorations$linear_algebra$Math$Vector3$vec3, -6, -12, -30),
+				A3($elm_explorations$linear_algebra$Math$Vector3$vec3, 0, 0, 0),
 				$author$project$Orientation$Vertical$asOrientation(
 					{dC: 0, d8: 0})),
 			aS: $author$project$Main$initKeys
@@ -7757,8 +7757,33 @@ var $author$project$Main$calculateVelocity = function (pressedKeys) {
 		velocity,
 		A3($elm_explorations$linear_algebra$Math$Vector3$vec3, 0, 0, 0)) ? velocity : $elm_explorations$linear_algebra$Math$Vector3$normalize(velocity);
 };
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
 var $elm_explorations$linear_algebra$Math$Vector3$add = _MJS_v3add;
+var $elm_explorations$linear_algebra$Math$Vector3$getX = _MJS_v3getX;
+var $elm_explorations$linear_algebra$Math$Vector3$getY = _MJS_v3getY;
+var $elm_explorations$linear_algebra$Math$Vector3$getZ = _MJS_v3getZ;
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm_explorations$linear_algebra$Math$Vector3$scale = _MJS_v3scale;
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var $author$project$Player$handle = F2(
 	function (dt, player) {
 		return _Utils_update(
@@ -7766,7 +7791,25 @@ var $author$project$Player$handle = F2(
 			{
 				cb: A2(
 					$elm_explorations$linear_algebra$Math$Vector3$add,
-					A2($elm_explorations$linear_algebra$Math$Vector3$scale, dt, player.ag),
+					A2(
+						$elm_explorations$linear_algebra$Math$Vector3$scale,
+						dt,
+						A2(
+							$elm_explorations$linear_algebra$Math$Vector3$scale,
+							1 - A2(
+								$elm$core$Maybe$withDefault,
+								0,
+								$elm$core$List$maximum(
+									A2(
+										$elm$core$List$map,
+										$elm$core$Basics$abs,
+										_List_fromArray(
+											[
+												$elm_explorations$linear_algebra$Math$Vector3$getX(player.cb),
+												$elm_explorations$linear_algebra$Math$Vector3$getY(player.cb),
+												$elm_explorations$linear_algebra$Math$Vector3$getZ(player.cb)
+											])))),
+							player.ag)),
 					player.cb)
 			});
 	});
@@ -7967,7 +8010,7 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
 var $author$project$Shaders$fragment = {
-	src: '\n    precision mediump float;\n    uniform float aspectRatio;\n    uniform vec3 position;\n    uniform mat4 view;\n    uniform vec3 center;\n    uniform float size;\n    varying vec2 vcoord;\n\n    struct Sphere {\n        vec3 center;\n        float radius;\n    };\n\n    float sphereDistance(vec3 point, Sphere sphere) {\n        return abs(distance(point, sphere.center) - sphere.radius);\n    }\n\n    struct Cube {\n        vec3 center;\n        float side;\n    };\n\n    float cubeDistance(vec3 point, Cube cube) {\n        vec3 corner = abs(cube.center - point) - 0.5 * cube.side;\n        if (corner.x < 0.0 && corner.y < 0.0 && corner.z < 0.0) {\n            return min(abs(corner.x), min(abs(corner.y), abs(corner.z)));\n        }\n        return length(max(corner, 0.0));\n    }\n\n    float planeDistance(vec3 point, vec4 plane) {\n        return max((dot(point, plane.xyz) + plane.w) / dot(plane.xyz, plane.xyz), 0.0);\n    }\n\n    vec3 mod3(float value, vec3 point) {\n        return mod(point, value);\n    }\n\n    vec3 mirror(vec3 point, vec4 plane) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point - 2.0 * relation * plane.xyz / dot(plane.xyz, plane.xyz);\n        }\n        return point;\n    }\n\n    vec3 shift(vec3 point, vec4 plane, float by) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point + plane.xyz * by;\n        }\n        return point;\n    }\n\n    vec3 shrink(float value, vec3 origin, vec3 point) {\n        return origin + value * (point - origin);\n    }\n\n    vec3 mirror3(vec3 origin, vec3 point) {\n        return origin + abs(point - origin);\n    }\n\n    vec3 replicate3(vec3 origin, vec3 point) {\n        vec3 p = point - origin;\n        float m = min(p.x, min(p.y, p.z));\n        if (m > 0.0) {\n            return point;\n        }\n        if (p.x == m) {\n            return origin + vec3(-p.x, p.y, p.z);\n        }\n        if (p.y == m) {\n            return origin + vec3(p.x, -p.y, p.z);\n        }\n        if (p.z == m) {\n            return origin + vec3(p.x, p.y, -p.z);\n        }\n        return point;\n    }\n\n    const int maxSteps = 50;\n    const float minHitDistance = 0.0005;\n\n    struct Material {\n        vec3 color;\n        vec4 glow;\n        float glowDistance;\n        float glowStrength;\n    };\n\n    vec3 objectColor(int step, Material material) {\n        float a = material.glow.a * pow(float(step) / float(maxSteps), 1.0 - material.glowStrength);\n        return material.glow.rgb * a + material.color * (1.0 - a);\n    }\n\n    vec3 backgroundColor(float minDistance, vec3 background, Material material) {\n        float a = material.glow.a * exp(-minDistance / material.glowDistance);\n        return material.glow.rgb * a + background * (1.0 - a);\n    }\n\n    vec3 background = vec3(0.0, 0.2, 0.5);\n\n    Material minecraftSponge = Material(\n        vec3(1, 0.7, 0.2),\n        vec4(0.0, 0.2, 0.0, 1),\n        2.0,\n        0.0\n    );\n\n    const int iters = 12;\n\n    float mengerSpongeDistance(vec3 point) {\n        float shrinkFactor = 3.0;\n        for (int i = 0; i < iters; i++) {\n            point = mirror3(center, point);\n            point = replicate3(center + vec3(size / 6.0), point);\n            point = shrink(shrinkFactor, center + vec3(size / 2.0), point);\n        }\n        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iters));\n    }\n\n    vec3 march(vec3 direction, vec3 position, Material material) {\n        float minDistance = 2000000000.0;\n        float distanceWalked = 0.;\n        for (int i = 0; i < maxSteps; i++) {\n            float dist = mengerSpongeDistance(position);\n            minDistance = min(minDistance, dist);\n            if (dist < minHitDistance * distanceWalked) {\n                return objectColor(i, material);\n            }\n            position = position + dist * direction;\n            distanceWalked += dist;\n        }\n        return backgroundColor(minDistance, background, material);\n    }\n\n    const float fov = 120.;\n    const float z = 1. / tan(radians(fov) / 2.);\n\n    void main() {\n        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));\n        vec3 color = march(direction, position, minecraftSponge);\n        gl_FragColor = vec4(color, 1);\n    }\n    ',
+	src: '\n    precision highp float;\n    uniform float aspectRatio;\n    uniform vec3 position;\n    uniform mat4 view;\n    uniform vec3 center;\n    uniform float size;\n    varying vec2 vcoord;\n\n    struct Sphere {\n        vec3 center;\n        float radius;\n    };\n\n    float sphereDistance(vec3 point, Sphere sphere) {\n        return abs(distance(point, sphere.center) - sphere.radius);\n    }\n\n    struct Cube {\n        vec3 center;\n        float side;\n    };\n\n    float cubeDistance(vec3 point, Cube cube) {\n        vec3 corner = abs(cube.center - point) - 0.5 * cube.side;\n        if (corner.x < 0.0 && corner.y < 0.0 && corner.z < 0.0) {\n            return min(abs(corner.x), min(abs(corner.y), abs(corner.z)));\n        }\n        return length(max(corner, 0.0));\n    }\n\n    float planeDistance(vec3 point, vec4 plane) {\n        return max((dot(point, plane.xyz) + plane.w) / dot(plane.xyz, plane.xyz), 0.0);\n    }\n\n    vec3 mod3(float value, vec3 point) {\n        return mod(point, value);\n    }\n\n    vec3 mirror(vec3 point, vec4 plane) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point - 2.0 * relation * plane.xyz / dot(plane.xyz, plane.xyz);\n        }\n        return point;\n    }\n\n    vec3 shift(vec3 point, vec4 plane, float by) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point + plane.xyz * by;\n        }\n        return point;\n    }\n\n    vec3 shrink(float value, vec3 origin, vec3 point) {\n        return origin + value * (point - origin);\n    }\n\n    vec3 mirror3(vec3 origin, vec3 point) {\n        return origin + abs(point - origin);\n    }\n\n    vec3 replicate3(vec3 origin, vec3 point) {\n        vec3 p = point - origin;\n        float m = min(p.x, min(p.y, p.z));\n        if (m > 0.0) {\n            return point;\n        }\n        if (p.x == m) {\n            return origin + vec3(-p.x, p.y, p.z);\n        }\n        if (p.y == m) {\n            return origin + vec3(p.x, -p.y, p.z);\n        }\n        if (p.z == m) {\n            return origin + vec3(p.x, p.y, -p.z);\n        }\n        return point;\n    }\n\n    const int maxSteps = 50;\n    const float minHitDistance = 0.001;\n\n    struct Material {\n        vec3 color;\n        vec4 glow;\n        float glowDistance;\n        float glowStrength;\n    };\n\n    vec3 objectColor(int step, Material material) {\n        float a = material.glow.a * pow(float(step) / float(maxSteps), 1.0 - material.glowStrength);\n        return material.glow.rgb * a + material.color * (1.0 - a);\n    }\n\n    vec3 backgroundColor(float minDistance, vec3 background, Material material) {\n        float a = material.glow.a * exp(-minDistance / material.glowDistance);\n        return material.glow.rgb * a + background * (1.0 - a);\n    }\n\n    vec3 background = vec3(0.0, 0.2, 0.5);\n\n    Material minecraftSponge = Material(\n        vec3(1, 0.7, 0.2),\n        vec4(0.0, 0.2, 0.0, 1),\n        0.1,\n        0.0\n    );\n\n    const int iters = 11;\n\n    float mengerSpongeDistance(vec3 point) {\n        float shrinkFactor = 3.0;\n        for (int i = 0; i < iters; i++) {\n            point = mirror3(center, point);\n            point = replicate3(center + vec3(size / 6.0), point);\n            point = shrink(shrinkFactor, center + vec3(size / 2.0), point);\n        }\n        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iters));\n    }\n\n    vec3 march(vec3 direction, vec3 position, Material material) {\n        float glowFactor = 2000000000.;\n        float distanceWalked = 0.;\n        for (int i = 0; i < maxSteps; i++) {\n            float dist = mengerSpongeDistance(position);\n            if (dist < minHitDistance * distanceWalked || dist < 0.000001) {\n                return objectColor(i, material);\n            }\n            position = position + dist * direction;\n            distanceWalked += dist;\n            glowFactor = min(glowFactor, dist);\n        }\n        return backgroundColor(glowFactor, background, material);\n    }\n\n    const float fov = 120.;\n    const float z = 1. / tan(radians(fov) / 2.);\n\n    void main() {\n        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));\n        vec3 color = march(direction, position, minecraftSponge);\n        gl_FragColor = vec4(color, 1);\n    }\n    ',
 	attributes: {},
 	uniforms: {aspectRatio: 'cK', center: 'cZ', position: 'cb', size: 'dM', view: 'bk'}
 };
@@ -8195,15 +8238,6 @@ var $mdgriffith$elm_ui$Internal$Model$transformClass = function (transform) {
 				'tfrm-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(tx) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(ty) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(tz) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(sx) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(sy) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(sz) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(ox) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(oy) + ('-' + ($mdgriffith$elm_ui$Internal$Model$floatClass(oz) + ('-' + $mdgriffith$elm_ui$Internal$Model$floatClass(angle))))))))))))))))))));
 	}
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $mdgriffith$elm_ui$Internal$Model$getStyleName = function (style) {
 	switch (style.$) {
 		case 13:
@@ -11372,16 +11406,6 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm$core$List$minimum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -13816,7 +13840,7 @@ var $author$project$Main$view = function (model) {
 							cK: model.O.ae / model.O.aa,
 							cZ: A3($elm_explorations$linear_algebra$Math$Vector3$vec3, 0, 0, 0),
 							cb: model.w.cb,
-							dM: 81,
+							dM: 2,
 							bk: model.w.bk
 						})
 					]))));

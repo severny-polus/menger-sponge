@@ -16,14 +16,15 @@ type alias Player a =
 
 makeAbsoluteVelocity : Orientation a -> Vec3 -> Vec3
 makeAbsoluteVelocity orientation relativeVelocity =
-    Mat4.transform (orientation |> Orientation.basis) relativeVelocity
+    relativeVelocity
+        |> Mat4.transform (orientation |> Orientation.basis)
 
 
 init : Vec3 -> Orientation a -> Player a
 init position orientation =
     { position = position
     , relativeVelocity = vec3 0 0 0
-    , absoluteVelocity = makeAbsoluteVelocity orientation <| vec3 0 0 0
+    , absoluteVelocity = makeAbsoluteVelocity orientation (vec3 0 0 0)
     , orientation = orientation
     , view = orientation |> Orientation.view
     }
@@ -34,7 +35,21 @@ handle dt player =
     { player
         | position =
             player.position
-                |> Vec3.add (player.absoluteVelocity |> Vec3.scale dt)
+                |> Vec3.add
+                    (player.absoluteVelocity
+                        |> Vec3.scale
+                            (1
+                                - ([ player.position |> Vec3.getX
+                                   , player.position |> Vec3.getY
+                                   , player.position |> Vec3.getZ
+                                   ]
+                                    |> List.map abs
+                                    |> List.maximum
+                                    |> Maybe.withDefault 0
+                                  )
+                            )
+                        |> Vec3.scale dt
+                    )
     }
 
 
@@ -52,7 +67,8 @@ updateVelocity : Vec3 -> Player a -> Player a
 updateVelocity relativeVelocity player =
     { player
         | relativeVelocity = relativeVelocity
-        , absoluteVelocity = makeAbsoluteVelocity player.orientation relativeVelocity
+        , absoluteVelocity =
+            makeAbsoluteVelocity player.orientation relativeVelocity
     }
 
 

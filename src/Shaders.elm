@@ -46,7 +46,7 @@ vertex =
 fragment : WebGL.Shader {} Uniforms Varyings
 fragment =
     [glsl|
-    precision mediump float;
+    precision highp float;
     uniform float aspectRatio;
     uniform vec3 position;
     uniform mat4 view;
@@ -127,7 +127,7 @@ fragment =
     }
 
     const int maxSteps = 50;
-    const float minHitDistance = 0.0005;
+    const float minHitDistance = 0.001;
 
     struct Material {
         vec3 color;
@@ -151,11 +151,11 @@ fragment =
     Material minecraftSponge = Material(
         vec3(1, 0.7, 0.2),
         vec4(0.0, 0.2, 0.0, 1),
-        2.0,
+        0.1,
         0.0
     );
 
-    const int iters = 12;
+    const int iters = 11;
 
     float mengerSpongeDistance(vec3 point) {
         float shrinkFactor = 3.0;
@@ -168,18 +168,18 @@ fragment =
     }
 
     vec3 march(vec3 direction, vec3 position, Material material) {
-        float minDistance = 2000000000.0;
+        float glowFactor = 2000000000.;
         float distanceWalked = 0.;
         for (int i = 0; i < maxSteps; i++) {
             float dist = mengerSpongeDistance(position);
-            minDistance = min(minDistance, dist);
-            if (dist < minHitDistance * distanceWalked) {
+            if (dist < minHitDistance * distanceWalked || dist < 0.000001) {
                 return objectColor(i, material);
             }
             position = position + dist * direction;
             distanceWalked += dist;
+            glowFactor = min(glowFactor, dist);
         }
-        return backgroundColor(minDistance, background, material);
+        return backgroundColor(glowFactor, background, material);
     }
 
     const float fov = 120.;
