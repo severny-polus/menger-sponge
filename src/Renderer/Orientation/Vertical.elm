@@ -1,8 +1,8 @@
-module Orientation.Vertical exposing (..)
+module Renderer.Orientation.Vertical exposing (..)
 
 import Math.Matrix4 as Mat4 exposing (Mat4)
-import Orientation exposing (Orientation)
-import World
+import Renderer.Orientation exposing (Orientation)
+import Renderer.World
 
 
 type alias Vertical =
@@ -13,14 +13,14 @@ type alias Vertical =
 
 basis : Vertical -> Mat4
 basis vertical =
-    Mat4.makeRotate vertical.phi World.up
+    Mat4.makeRotate vertical.phi Renderer.World.up
 
 
 view : Vertical -> Mat4
 view vertical =
     Mat4.mul
-        (Mat4.makeRotate vertical.phi World.up)
-        (Mat4.makeRotate vertical.theta World.right)
+        (Mat4.makeRotate vertical.phi Renderer.World.up)
+        (Mat4.makeRotate vertical.theta Renderer.World.right)
 
 
 rotate : Float -> Float -> Vertical -> Vertical

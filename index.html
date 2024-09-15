@@ -13,8 +13,12 @@
         node: document.getElementById('myapp')
     });
     const canvas = document.getElementById('canvas')
-    canvas.addEventListener("click", async () => {
-        await canvas.requestPointerLock();
+    app.ports.pointerLock.subscribe
+    canvas.addEventListener("click", () => {
+        canvas.requestPointerLock();
+    });
+    document.addEventListener("pointerlockchange", () => {
+        app.ports.pointerLock.send(document.pointerLockElement === canvas);
     });
     window.addEventListener("beforeunload", (event) => {
         event.preventDefault();

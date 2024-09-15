@@ -1,4 +1,4 @@
-module World exposing (..)
+module Renderer.World exposing (..)
 
 import Math.Vector3 exposing (Vec3, vec3)
 

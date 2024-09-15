@@ -1,4 +1,4 @@
-module Shaders exposing (..)
+module Renderer.Shaders exposing (..)
 
 import Math.Matrix4 exposing (Mat4)
 import Math.Vector2 exposing (Vec2, vec2)
@@ -127,7 +127,7 @@ fragment =
     }
 
     const int maxSteps = 50;
-    const float minHitDistance = 0.001;
+    const float minHitDistance = 0.0001;
 
     struct Material {
         vec3 color;

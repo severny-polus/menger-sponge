@@ -1,8 +1,8 @@
-module Player exposing (..)
+module Renderer.Player exposing (..)
 
 import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
-import Orientation exposing (Orientation)
+import Renderer.Orientation exposing (Orientation)
 
 
 type alias Player a =
@@ -17,7 +17,7 @@ type alias Player a =
 makeAbsoluteVelocity : Orientation a -> Vec3 -> Vec3
 makeAbsoluteVelocity orientation relativeVelocity =
     relativeVelocity
-        |> Mat4.transform (orientation |> Orientation.basis)
+        |> Mat4.transform (orientation |> Renderer.Orientation.basis)
 
 
 init : Vec3 -> Orientation a -> Player a
@@ -26,7 +26,7 @@ init position orientation =
     , relativeVelocity = vec3 0 0 0
     , absoluteVelocity = makeAbsoluteVelocity orientation (vec3 0 0 0)
     , orientation = orientation
-    , view = orientation |> Orientation.view
+    , view = orientation |> Renderer.Orientation.view
     }
 
 
@@ -76,10 +76,10 @@ rotate : Float -> Float -> Player a -> Player a
 rotate dphi dtheta player =
     let
         orientation =
-            Orientation.rotate dphi dtheta player.orientation
+            Renderer.Orientation.rotate dphi dtheta player.orientation
     in
     { player
         | orientation = orientation
-        , view = Orientation.view orientation
+        , view = Renderer.Orientation.view orientation
         , absoluteVelocity = makeAbsoluteVelocity orientation player.relativeVelocity
     }
