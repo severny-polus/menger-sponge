@@ -20,10 +20,6 @@
     document.addEventListener("pointerlockchange", () => {
         app.ports.pointerLock.send(document.pointerLockElement === canvas);
     });
-    window.addEventListener("beforeunload", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-    });
 </script>
 </body>
 </html>

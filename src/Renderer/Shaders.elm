@@ -23,6 +23,9 @@ type alias Uniforms =
     , view : Mat4
     , center : Vec3
     , size : Float
+    , materialColor : Vec3
+    , shadowColor : Vec3
+    , backgroundColor : Vec3
     }
 
 
@@ -47,12 +50,18 @@ fragment : WebGL.Shader {} Uniforms Varyings
 fragment =
     [glsl|
     precision highp float;
+    
+    varying vec2 vcoord;
+
     uniform float aspectRatio;
     uniform vec3 position;
     uniform mat4 view;
     uniform vec3 center;
     uniform float size;
-    varying vec2 vcoord;
+
+    uniform vec3 materialColor;
+    uniform vec3 shadowColor;
+    uniform vec3 backgroundColor;
 
     struct Sphere {
         vec3 center;
@@ -127,7 +136,7 @@ fragment =
     }
 
     const int maxSteps = 50;
-    const float minHitDistance = 0.0001;
+    const float minHitDistance = 0.0002;
 
     struct Material {
         vec3 color;
@@ -136,24 +145,15 @@ fragment =
         float glowStrength;
     };
 
-    vec3 objectColor(int step, Material material) {
+    vec3 getObjectColor(int step, Material material) {
         float a = material.glow.a * pow(float(step) / float(maxSteps), 1.0 - material.glowStrength);
         return material.glow.rgb * a + material.color * (1.0 - a);
     }
 
-    vec3 backgroundColor(float minDistance, vec3 background, Material material) {
+    vec3 getBackgroundColor(float minDistance, vec3 background, Material material) {
         float a = material.glow.a * exp(-minDistance / material.glowDistance);
         return material.glow.rgb * a + background * (1.0 - a);
     }
-
-    vec3 background = vec3(0.0, 0.2, 0.5);
-
-    Material minecraftSponge = Material(
-        vec3(1, 0.7, 0.2),
-        vec4(0.0, 0.2, 0.0, 1),
-        0.1,
-        0.0
-    );
 
     const int iters = 11;
 
@@ -173,21 +173,27 @@ fragment =
         for (int i = 0; i < maxSteps; i++) {
             float dist = mengerSpongeDistance(position);
             if (dist < minHitDistance * distanceWalked || dist < 0.000001) {
-                return objectColor(i, material);
+                return getObjectColor(i, material);
             }
             position = position + dist * direction;
             distanceWalked += dist;
             glowFactor = min(glowFactor, dist);
         }
-        return backgroundColor(glowFactor, background, material);
+        return getBackgroundColor(glowFactor, backgroundColor, material);
     }
 
     const float fov = 120.;
     const float z = 1. / tan(radians(fov) / 2.);
 
     void main() {
+        Material material = Material(
+            materialColor,
+            vec4(shadowColor, 1),
+            0.1,
+            0.0
+        );
         vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));
-        vec3 color = march(direction, position, minecraftSponge);
+        vec3 color = march(direction, position, material);
         gl_FragColor = vec4(color, 1);
     }
     |]

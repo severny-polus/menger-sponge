@@ -3,8 +3,9 @@ port module Renderer.Renderer exposing (..)
 import Browser.Dom
 import Browser.Events
 import Dict exposing (keys)
-import Element exposing (Element)
-import Html.Attributes as Attributes
+import Element exposing (Color, Element)
+import Fractal exposing (Fractal)
+import Html.Attributes
 import Json.Decode as Decode
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
 import Renderer.Orientation.Vertical as Vertical exposing (Vertical)
@@ -87,7 +88,8 @@ type alias Model =
 
 
 type Msg
-    = Element (Result Browser.Dom.Error Browser.Dom.Element)
+    = GetElement (Result Browser.Dom.Error Browser.Dom.Element)
+    | Refresh
     | Resize Int Int
     | Frame Float
     | KeyOp Bool String Bool
@@ -113,29 +115,57 @@ init _ =
       , pointerLocked = False
       }
     , Browser.Dom.getElement id
-        |> Task.attempt Element
+        |> Task.attempt GetElement
     )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ Browser.Events.onResize Resize
-        , Browser.Events.onAnimationFrameDelta Frame
-        , Browser.Events.onKeyDown <|
-            Decode.map2 (KeyOp True)
-                (Decode.field "key" Decode.string)
-                (Decode.field "repeat" Decode.bool)
-        , Browser.Events.onKeyUp <|
-            Decode.map2 (KeyOp False)
-                (Decode.field "key" Decode.string)
-                (Decode.field "repeat" Decode.bool)
-        , Browser.Events.onMouseMove <|
-            Decode.map2 MouseMove
-                (Decode.field "movementX" Decode.int)
-                (Decode.field "movementY" Decode.int)
-        , pointerLock PointerLock
+mesh : Mesh Shaders.Attributes
+mesh =
+    WebGL.triangleFan
+        [ Shaders.attributes -1 -1
+        , Shaders.attributes -1 1
+        , Shaders.attributes 1 1
+        , Shaders.attributes 1 -1
         ]
+
+
+colorToVec3 : Color -> Vec3
+colorToVec3 color =
+    let
+        { red, green, blue } =
+            Element.toRgb color
+    in
+    vec3 red green blue
+
+
+view : Fractal -> Model -> Element Msg
+view fractal model =
+    Element.el
+        [ Element.width Element.fill
+        , Element.height Element.fill
+        , Element.htmlAttribute <| Html.Attributes.id id
+        ]
+    <|
+        Element.html <|
+            WebGL.toHtml
+                [ Html.Attributes.id "canvas"
+                , Html.Attributes.width model.canvasSize.width
+                , Html.Attributes.height model.canvasSize.height
+                ]
+                [ WebGL.entity
+                    Shaders.vertex
+                    Shaders.fragment
+                    mesh
+                    { aspectRatio = toFloat model.canvasSize.width / toFloat model.canvasSize.height
+                    , position = model.player.position
+                    , view = model.player.view
+                    , center = vec3 0 0 0
+                    , size = 2
+                    , materialColor = colorToVec3 fractal.materialColor
+                    , shadowColor = colorToVec3 fractal.shadowColor
+                    , backgroundColor = colorToVec3 fractal.backgroundColor
+                    }
+                ]
 
 
 sensitivity : Float
@@ -171,7 +201,7 @@ calculateVelocity pressedKeys =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Element (Ok { element }) ->
+        GetElement (Ok { element }) ->
             ( { model
                 | canvasSize =
                     { width = floor element.width
@@ -181,13 +211,16 @@ update msg model =
             , Cmd.none
             )
 
-        Element (Err _) ->
+        GetElement (Err _) ->
             ( model, Cmd.none )
+
+        Refresh ->
+            ( { model | canvasSize = { width = 0, height = 0 } }, Cmd.none )
 
         Resize _ _ ->
             ( model
             , Browser.Dom.getElement id
-                |> Task.attempt Element
+                |> Task.attempt GetElement
             )
 
         Frame deltaTimeMilliseconds ->
@@ -242,38 +275,22 @@ update msg model =
             )
 
 
-mesh : Mesh Shaders.Attributes
-mesh =
-    WebGL.triangleFan
-        [ Shaders.attributes -1 -1
-        , Shaders.attributes -1 1
-        , Shaders.attributes 1 1
-        , Shaders.attributes 1 -1
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ Browser.Events.onResize Resize
+        , Browser.Events.onAnimationFrameDelta Frame
+        , Browser.Events.onKeyDown <|
+            Decode.map2 (KeyOp True)
+                (Decode.field "key" Decode.string)
+                (Decode.field "repeat" Decode.bool)
+        , Browser.Events.onKeyUp <|
+            Decode.map2 (KeyOp False)
+                (Decode.field "key" Decode.string)
+                (Decode.field "repeat" Decode.bool)
+        , Browser.Events.onMouseMove <|
+            Decode.map2 MouseMove
+                (Decode.field "movementX" Decode.int)
+                (Decode.field "movementY" Decode.int)
+        , pointerLock PointerLock
         ]
-
-
-view : Model -> Element Msg
-view model =
-    Element.el
-        [ Element.width Element.fill
-        , Element.height Element.fill
-        , Element.htmlAttribute <| Attributes.id id
-        ]
-    <|
-        Element.html <|
-            WebGL.toHtml
-                [ Attributes.id "canvas"
-                , Attributes.width model.canvasSize.width
-                , Attributes.height model.canvasSize.height
-                ]
-                [ WebGL.entity
-                    Shaders.vertex
-                    Shaders.fragment
-                    mesh
-                    { aspectRatio = toFloat model.canvasSize.width / toFloat model.canvasSize.height
-                    , position = model.player.position
-                    , view = model.player.view
-                    , center = vec3 0 0 0
-                    , size = 2
-                    }
-                ]
