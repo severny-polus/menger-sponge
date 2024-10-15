@@ -26,6 +26,8 @@ type alias Uniforms =
     , materialColor : Vec3
     , shadowColor : Vec3
     , backgroundColor : Vec3
+    , fov : Float
+    , minHitDistance : Float
     }
 
 
@@ -62,6 +64,12 @@ fragment =
     uniform vec3 materialColor;
     uniform vec3 shadowColor;
     uniform vec3 backgroundColor;
+
+    uniform float fov;
+    uniform float minHitDistance;
+
+    const int iterations = 11;
+    const int renderSteps = 50;
 
     struct Sphere {
         vec3 center;
@@ -135,9 +143,6 @@ fragment =
         return point;
     }
 
-    const int maxSteps = 50;
-    const float minHitDistance = 0.0002;
-
     struct Material {
         vec3 color;
         vec4 glow;
@@ -146,7 +151,7 @@ fragment =
     };
 
     vec3 getObjectColor(int step, Material material) {
-        float a = material.glow.a * pow(float(step) / float(maxSteps), 1.0 - material.glowStrength);
+        float a = material.glow.a * pow(float(step) / float(renderSteps), 1.0 - material.glowStrength);
         return material.glow.rgb * a + material.color * (1.0 - a);
     }
 
@@ -155,22 +160,20 @@ fragment =
         return material.glow.rgb * a + background * (1.0 - a);
     }
 
-    const int iters = 11;
-
     float mengerSpongeDistance(vec3 point) {
         float shrinkFactor = 3.0;
-        for (int i = 0; i < iters; i++) {
+        for (int i = 0; i < iterations; i++) {
             point = mirror3(center, point);
             point = replicate3(center + vec3(size / 6.0), point);
             point = shrink(shrinkFactor, center + vec3(size / 2.0), point);
         }
-        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iters));
+        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iterations));
     }
 
     vec3 march(vec3 direction, vec3 position, Material material) {
         float glowFactor = 2000000000.;
         float distanceWalked = 0.;
-        for (int i = 0; i < maxSteps; i++) {
+        for (int i = 0; i < renderSteps; i++) {
             float dist = mengerSpongeDistance(position);
             if (dist < minHitDistance * distanceWalked || dist < 0.000001) {
                 return getObjectColor(i, material);
@@ -182,9 +185,6 @@ fragment =
         return getBackgroundColor(glowFactor, backgroundColor, material);
     }
 
-    const float fov = 120.;
-    const float z = 1. / tan(radians(fov) / 2.);
-
     void main() {
         Material material = Material(
             materialColor,
@@ -192,6 +192,7 @@ fragment =
             0.1,
             0.0
         );
+        float z = 1. / tan(radians(fov) / 2.);
         vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));
         vec3 color = march(direction, position, material);
         gl_FragColor = vec4(color, 1);

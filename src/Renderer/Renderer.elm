@@ -4,7 +4,7 @@ import Browser.Dom
 import Browser.Events
 import Dict exposing (keys)
 import Element exposing (Color, Element)
-import Fractal exposing (Fractal)
+import ControlPanel exposing (ControlPanel)
 import Html.Attributes
 import Json.Decode as Decode
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
@@ -138,8 +138,8 @@ colorToVec3 color =
     vec3 red green blue
 
 
-view : Fractal -> Model -> Element Msg
-view fractal model =
+view : ControlPanel -> Model -> Element Msg
+view control model =
     Element.el
         [ Element.width Element.fill
         , Element.height Element.fill
@@ -161,9 +161,11 @@ view fractal model =
                     , view = model.player.view
                     , center = vec3 0 0 0
                     , size = 2
-                    , materialColor = colorToVec3 fractal.materialColor
-                    , shadowColor = colorToVec3 fractal.shadowColor
-                    , backgroundColor = colorToVec3 fractal.backgroundColor
+                    , materialColor = colorToVec3 control.materialColor
+                    , shadowColor = colorToVec3 control.shadowColor
+                    , backgroundColor = colorToVec3 control.backgroundColor
+                    , fov = control.fov
+                    , minHitDistance = control.minHitDistance
                     }
                 ]
 

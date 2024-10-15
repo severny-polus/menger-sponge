@@ -2,13 +2,8 @@ module Main exposing (main)
 
 import Browser
 import Browser.Dom
-import Browser.Navigation
-import ColorPicker exposing (colorPicker)
-import Element exposing (Color, Element, alignRight, alignTop, column, el, fill, focused, height, htmlAttribute, image, inFront, layout, map, mouseDown, mouseOver, noHover, padding, px, rgb, rgba, row, spacing, text, width)
-import Element.Background as Background
-import Element.Font as Font
-import Element.Input as Input
-import Fractal exposing (Fractal)
+import ControlPanel exposing (ControlPanel)
+import Element exposing (alignRight, el, fill, height, htmlAttribute, inFront, layout, rgb, rgba, row, width)
 import Html exposing (Html)
 import Html.Attributes
 import Renderer.Renderer as Renderer
@@ -17,14 +12,13 @@ import Task
 
 type Msg
     = RendererMsg Renderer.Msg
-    | FractalMsg Fractal.Msg
-    | OpenControlPanel Bool
+    | ControlPanelMsg ControlPanel.Msg
 
 
 type alias Model =
     { renderer : Renderer.Model
     , controlPanelOpened : Bool
-    , fractal : Fractal
+    , controlPanel : ControlPanel
     }
 
 
@@ -36,53 +30,19 @@ init _ =
     in
     ( { renderer = renderer
       , controlPanelOpened = False
-      , fractal =
+      , controlPanel =
             { materialColor = rgb 1 0.7 0.2
             , shadowColor = rgb 0 0.2 0
             , backgroundColor = rgb 0 0.2 0.5
+            , fov = 120
+            , minHitDistance = 0.0002
+            , renderSteps = 50
             }
       }
     , Cmd.batch
         [ rendererCmd |> Cmd.map RendererMsg
         ]
     )
-
-
-button48px : String -> Color -> Color -> Color -> Msg -> Element Msg
-button48px icon bg hoverBg activeBg msg =
-    Input.button
-        [ width <| px 48
-        , height <| px 48
-        , padding 12
-        , Background.color bg
-        , mouseDown
-            [ Background.color activeBg
-            ]
-        , mouseOver
-            [ Background.color hoverBg
-            ]
-        , focused []
-        ]
-        { onPress = Just msg
-        , label =
-            image
-                [ width <| px 24
-                , height <| px 24
-                ]
-                { src = icon
-                , description = ""
-                }
-        }
-
-
-h3 : String -> Element Msg
-h3 string =
-    el
-        [ Font.size 16
-        , Font.bold
-        ]
-    <|
-        text string
 
 
 view : Model -> Html Msg
@@ -106,48 +66,21 @@ view model =
 
                     else
                         el [ alignRight ] <|
-                            button48px
+                            ControlPanel.button48px
                                 "svg/settings--adjust-white.svg"
                                 (rgba 1 1 1 0)
                                 (rgba 1 1 1 0.1)
                                 (rgba 1 1 1 0.2)
                             <|
-                                OpenControlPanel True
+                                ControlPanelMsg <|
+                                    ControlPanel.Open True
                 ]
               <|
                 Element.map RendererMsg <|
-                    Renderer.view model.fractal model.renderer
+                    Renderer.view model.controlPanel model.renderer
             , if model.controlPanelOpened then
-                column
-                    [ width <| px 256
-                    , alignTop
-                    ]
-                    [ column
-                        [ width fill
-                        ]
-                        [ row [ alignRight ]
-                            [ button48px
-                                "svg/chevron--right.svg"
-                                (rgb 1 1 1)
-                                (rgba 0 0 0 0.05)
-                                (rgba 0 0 0 0.1)
-                              <|
-                                OpenControlPanel False
-                            ]
-                        , column
-                            [ width fill
-                            , padding 16
-                            , spacing 16
-                            ]
-                            [ h3 "Material color"
-                            , colorPicker model.fractal.materialColor Fractal.SetMaterialColor |> Element.map FractalMsg
-                            , h3 "Shadow color"
-                            , colorPicker model.fractal.shadowColor Fractal.SetShadowColor |> Element.map FractalMsg
-                            , h3 "Background color"
-                            , colorPicker model.fractal.backgroundColor Fractal.SetBackgroundColor |> Element.map FractalMsg
-                            ]
-                        ]
-                    ]
+                Element.map ControlPanelMsg <|
+                    ControlPanel.view model.controlPanel
 
               else
                 Element.none
@@ -166,12 +99,7 @@ update msg model =
             , cmd |> Cmd.map RendererMsg
             )
 
-        FractalMsg fractalMsg ->
-            ( { model | fractal = model.fractal |> Fractal.update fractalMsg }
-            , Cmd.none
-            )
-
-        OpenControlPanel bool ->
+        ControlPanelMsg (ControlPanel.Open bool) ->
             let
                 renderer =
                     model.renderer
@@ -198,6 +126,11 @@ update msg model =
                 |> Cmd.map RendererMsg
             )
 
+        ControlPanelMsg controlPanelMsg ->
+            ( { model | controlPanel = model.controlPanel |> ControlPanel.update controlPanelMsg }
+            , Cmd.none
+            )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -210,7 +143,7 @@ main : Program () Model Msg
 main =
     Browser.element
         { init = init
-        , update = update
         , view = view
+        , update = update
         , subscriptions = subscriptions
         }
