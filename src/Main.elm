@@ -36,7 +36,7 @@ init _ =
             , backgroundColor = rgb 0 0.2 0.5
             , fov = 120
             , minHitDistance = 0.0002
-            , renderSteps = 50
+            , glowLength = 0.1
             }
       }
     , Cmd.batch
@@ -100,26 +100,20 @@ update msg model =
             )
 
         ControlPanelMsg (ControlPanel.Open bool) ->
-            let
-                renderer =
-                    model.renderer
-            in
             ( { model
                 | controlPanelOpened = bool
                 , renderer =
-                    { renderer
-                        | canvasSize =
-                            { width =
-                                renderer.canvasSize.width
-                                    + (if bool then
-                                        -256
+                    Renderer.setCanvasSize
+                        ( model.renderer.canvasSize.width
+                            + (if bool then
+                                -256
 
-                                       else
-                                        256
-                                      )
-                            , height = renderer.canvasSize.height
-                            }
-                    }
+                               else
+                                256
+                              )
+                        , model.renderer.canvasSize.height
+                        )
+                        model.renderer
               }
             , Browser.Dom.getElement Renderer.id
                 |> Task.attempt Renderer.GetElement

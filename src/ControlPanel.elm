@@ -14,7 +14,7 @@ type alias ControlPanel =
     , backgroundColor : Color
     , fov : Float
     , minHitDistance : Float
-    , renderSteps : Int
+    , glowLength : Float
     }
 
 
@@ -25,6 +25,7 @@ type Msg
     | SetBackgroundColor Color
     | SetFov Float
     | SetDetail Float
+    | SetGlowLength Float
 
 
 button48px : String -> Color -> Color -> Color -> msg -> Element msg
@@ -242,28 +243,33 @@ view controlPanel =
                 , slider 60 150 controlPanel.fov (Just 1) SetFov
                 , controlLabel "Detail"
                 , slider 1 7 -(logBase 10 controlPanel.minHitDistance) Nothing SetDetail
+                , controlLabel "Glow length"
+                , slider 0 1 controlPanel.glowLength Nothing SetGlowLength
                 ]
             ]
         ]
 
 
 update : Msg -> ControlPanel -> ControlPanel
-update msg control =
+update msg controlPanel =
     case msg of
+        Open _ ->
+            controlPanel
+
         SetMaterialColor color ->
-            { control | materialColor = color }
+            { controlPanel | materialColor = color }
 
         SetShadowColor color ->
-            { control | shadowColor = color }
+            { controlPanel | shadowColor = color }
 
         SetBackgroundColor color ->
-            { control | backgroundColor = color }
+            { controlPanel | backgroundColor = color }
 
         SetFov fov ->
-            { control | fov = fov }
+            { controlPanel | fov = fov }
 
         SetDetail detail ->
-            { control | minHitDistance = 10 ^ -detail }
+            { controlPanel | minHitDistance = 10 ^ -detail }
 
-        _ ->
-            control
+        SetGlowLength glowLength ->
+            { controlPanel | glowLength = glowLength }

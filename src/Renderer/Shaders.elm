@@ -28,6 +28,7 @@ type alias Uniforms =
     , backgroundColor : Vec3
     , fov : Float
     , minHitDistance : Float
+    , glowLength : Float
     }
 
 
@@ -67,6 +68,7 @@ fragment =
 
     uniform float fov;
     uniform float minHitDistance;
+    uniform float glowLength;
 
     const int iterations = 11;
     const int renderSteps = 50;
@@ -146,7 +148,7 @@ fragment =
     struct Material {
         vec3 color;
         vec4 glow;
-        float glowDistance;
+        float glowLength;
         float glowStrength;
     };
 
@@ -155,8 +157,8 @@ fragment =
         return material.glow.rgb * a + material.color * (1.0 - a);
     }
 
-    vec3 getBackgroundColor(float minDistance, vec3 background, Material material) {
-        float a = material.glow.a * exp(-minDistance / material.glowDistance);
+    vec3 getBackgroundColor(float glowFactor, vec3 background, Material material) {
+        float a = material.glow.a * exp(-glowFactor / material.glowLength);
         return material.glow.rgb * a + background * (1.0 - a);
     }
 
@@ -189,7 +191,7 @@ fragment =
         Material material = Material(
             materialColor,
             vec4(shadowColor, 1),
-            0.1,
+            glowLength,
             0.0
         );
         float z = 1. / tan(radians(fov) / 2.);

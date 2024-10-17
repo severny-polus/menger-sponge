@@ -2,9 +2,9 @@ port module Renderer.Renderer exposing (..)
 
 import Browser.Dom
 import Browser.Events
+import ControlPanel exposing (ControlPanel)
 import Dict exposing (keys)
 import Element exposing (Color, Element)
-import ControlPanel exposing (ControlPanel)
 import Html.Attributes
 import Json.Decode as Decode
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
@@ -139,7 +139,7 @@ colorToVec3 color =
 
 
 view : ControlPanel -> Model -> Element Msg
-view control model =
+view controlPanel model =
     Element.el
         [ Element.width Element.fill
         , Element.height Element.fill
@@ -161,11 +161,12 @@ view control model =
                     , view = model.player.view
                     , center = vec3 0 0 0
                     , size = 2
-                    , materialColor = colorToVec3 control.materialColor
-                    , shadowColor = colorToVec3 control.shadowColor
-                    , backgroundColor = colorToVec3 control.backgroundColor
-                    , fov = control.fov
-                    , minHitDistance = control.minHitDistance
+                    , materialColor = colorToVec3 controlPanel.materialColor
+                    , shadowColor = colorToVec3 controlPanel.shadowColor
+                    , backgroundColor = colorToVec3 controlPanel.backgroundColor
+                    , fov = controlPanel.fov
+                    , minHitDistance = controlPanel.minHitDistance
+                    , glowLength = controlPanel.glowLength
                     }
                 ]
 
@@ -200,16 +201,16 @@ calculateVelocity pressedKeys =
         Vec3.normalize velocity
 
 
+setCanvasSize : ( Int, Int ) -> Model -> Model
+setCanvasSize ( width, height ) model =
+    { model | canvasSize = { width = width, height = height } }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GetElement (Ok { element }) ->
-            ( { model
-                | canvasSize =
-                    { width = floor element.width
-                    , height = floor element.height
-                    }
-              }
+            ( setCanvasSize ( floor element.width, floor element.height ) model
             , Cmd.none
             )
 
