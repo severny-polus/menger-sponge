@@ -1,20 +1,20 @@
 module ControlPanel exposing (..)
 
-import Element exposing (Color, Element, alignRight, alignTop, behindContent, centerY, column, el, fill, fillPortion, focused, height, image, mouseDown, mouseOver, padding, paddingXY, px, rgb, rgba, row, scale, spacing, text, toRgb, width)
+import Element exposing (Color, Element, alignRight, alignTop, column, el, fill, focused, height, image, mouseDown, mouseOver, padding, px, rgb, rgba, row, spacing, text, toRgb, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input exposing (Thumb, labelAbove, labelHidden)
-import String exposing (fromFloat)
+import Slider exposing (Slider)
 
 
 type alias ControlPanel =
     { materialColor : Color
     , shadowColor : Color
     , backgroundColor : Color
-    , fov : Float
-    , hitFactor : Float
-    , glowLength : Float
+    , fov : Slider
+    , detail : Slider
+    , glowLength : Slider
     }
 
 
@@ -23,9 +23,9 @@ type Msg
     | SetMaterialColor Color
     | SetShadowColor Color
     | SetBackgroundColor Color
-    | SetFov Float
-    | SetDetail Float
-    | SetGlowLength Float
+    | SetFov Slider.Msg
+    | SetDetail Slider.Msg
+    | SetGlowLength Slider.Msg
 
 
 button48px : String -> Color -> Color -> Color -> msg -> Element msg
@@ -132,74 +132,6 @@ colorPicker color msg =
             ]
 
 
-slider : Float -> Float -> Float -> Maybe Float -> (Float -> msg) -> Element msg
-slider min max value step msg =
-    row
-        [ width fill
-        , spacing 8
-        , Font.size 14
-        ]
-        [ -- Element.Input.text
-          -- [ width <| px 48
-          -- , focused [ Border.glow (rgba 0 0 0 0) 0 ]
-          -- , padding 8
-          -- , Background.color <| rgba 1 1 1 0.1
-          -- , Border.color <| rgb 0.8 0.8 0.8
-          -- , Border.width 2
-          -- , Border.rounded 0
-          -- ]
-          -- { onChange = String.replace "." "" >> String.toFloat >> Maybe.withDefault value >> msg
-          -- , text = fromFloat <| (toFloat <| round (value * 100)) / 100
-          -- , placeholder = Just (Element.Input.placeholder [ Font.color <| rgb 0.5 0.5 0.5 ] <| text "Val")
-          -- , label = labelHidden ""
-          -- }
-          text <| fromFloat min
-        , Element.Input.slider
-            [ centerY
-            , behindContent <|
-                row
-                    [ width fill
-                    , height <| px 2
-                    , centerY
-                    , paddingXY 7 0
-                    ]
-                    [ el
-                        [ width <| fillPortion <| round ((value - min) / (max - min) * 100)
-                        , height fill
-                        , Background.color <| rgb 0 0 0
-                        ]
-                        Element.none
-                    , el
-                        [ width <| fillPortion <| round ((max - value) / (max - min) * 100)
-                        , height fill
-                        , Background.color <| rgb 0.7 0.7 0.7
-                        ]
-                        Element.none
-                    ]
-            ]
-            { onChange = msg
-            , label = labelHidden ""
-            , min = min
-            , max = max
-            , value = value
-            , thumb =
-                Element.Input.thumb
-                    [ width <| px 14
-                    , height <| px 14
-                    , Background.color <| rgb 0 0 0
-                    , Border.rounded 7
-                    , Border.color <| rgba 0 0 0 0
-                    , focused [ Border.glow (rgba 0 0 0 0) 0 ]
-                    , mouseOver
-                        [ scale 1.5
-                        ]
-                    ]
-            , step = step
-            }
-        , text <| fromFloat max
-        ]
-
-
 controlLabel : String -> Element Msg
 controlLabel string =
     el
@@ -240,11 +172,11 @@ view controlPanel =
                 , controlLabel "Background color"
                 , colorPicker controlPanel.backgroundColor SetBackgroundColor
                 , controlLabel "Field of view"
-                , slider 60 150 controlPanel.fov (Just 1) SetFov
+                , Slider.slider 60 150 controlPanel.fov (Just 1) |> Element.map SetFov
                 , controlLabel "Detail"
-                , slider 1 7 -(logBase 10 controlPanel.hitFactor) Nothing SetDetail
+                , Slider.slider 1 6 controlPanel.detail Nothing |> Element.map SetDetail
                 , controlLabel "Glow length"
-                , slider 0 1 controlPanel.glowLength Nothing SetGlowLength
+                , Slider.slider 0 1 controlPanel.glowLength Nothing |> Element.map SetGlowLength
                 ]
             ]
         ]
@@ -266,10 +198,10 @@ update msg controlPanel =
             { controlPanel | backgroundColor = color }
 
         SetFov fov ->
-            { controlPanel | fov = fov }
+            { controlPanel | fov = Slider.update fov controlPanel.fov }
 
         SetDetail detail ->
-            { controlPanel | hitFactor = 10 ^ -detail }
+            { controlPanel | detail = Slider.update detail controlPanel.detail }
 
         SetGlowLength glowLength ->
-            { controlPanel | glowLength = glowLength }
+            { controlPanel | glowLength = Slider.update glowLength controlPanel.glowLength }

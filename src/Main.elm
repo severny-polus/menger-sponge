@@ -7,6 +7,7 @@ import Element exposing (alignRight, el, fill, height, htmlAttribute, inFront, l
 import Html exposing (Html)
 import Html.Attributes
 import Renderer.Renderer as Renderer
+import Slider
 import Task
 
 
@@ -34,9 +35,9 @@ init _ =
             { materialColor = rgb 1 0.7 0.2
             , shadowColor = rgb 0 0.2 0
             , backgroundColor = rgb 0 0.2 0.5
-            , fov = 120
-            , hitFactor = 0.0002
-            , glowLength = 0.1
+            , fov = Slider.init 120
+            , detail = Slider.init <| -(logBase 10 0.0002)
+            , glowLength = Slider.init 0.1
             }
       }
     , Cmd.batch
