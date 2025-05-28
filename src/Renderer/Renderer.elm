@@ -165,7 +165,7 @@ view controlPanel model =
                     , shadowColor = colorToVec3 controlPanel.shadowColor
                     , backgroundColor = colorToVec3 controlPanel.backgroundColor
                     , fov = controlPanel.fov
-                    , minHitDistance = controlPanel.minHitDistance
+                    , hitFactor = controlPanel.hitFactor
                     , glowLength = controlPanel.glowLength
                     }
                 ]

@@ -7178,8 +7178,8 @@ var $author$project$Main$init = function (_v0) {
 				a3: A3($mdgriffith$elm_ui$Element$rgb, 0, 0.2, 0.5),
 				a4: 120,
 				a5: 0.1,
-				bb: A3($mdgriffith$elm_ui$Element$rgb, 1, 0.7, 0.2),
-				bd: 0.0002,
+				a9: 0.0002,
+				bc: A3($mdgriffith$elm_ui$Element$rgb, 1, 0.7, 0.2),
 				bj: A3($mdgriffith$elm_ui$Element$rgb, 0, 0.2, 0)
 			},
 			ag: false,
@@ -7817,7 +7817,7 @@ var $author$project$ControlPanel$update = F2(
 				var color = msg.a;
 				return _Utils_update(
 					controlPanel,
-					{bb: color});
+					{bc: color});
 			case 2:
 				var color = msg.a;
 				return _Utils_update(
@@ -7838,7 +7838,7 @@ var $author$project$ControlPanel$update = F2(
 				return _Utils_update(
 					controlPanel,
 					{
-						bd: A2($elm$core$Basics$pow, 10, -detail)
+						a9: A2($elm$core$Basics$pow, 10, -detail)
 					});
 			default:
 				var glowLength = msg.a;
@@ -13677,7 +13677,7 @@ var $mdgriffith$elm_ui$Element$width = $mdgriffith$elm_ui$Internal$Model$Width;
 var $mdgriffith$elm_ui$Element$Input$button = F2(
 	function (attrs, _v0) {
 		var onPress = _v0.dG;
-		var label = _v0.a9;
+		var label = _v0.ba;
 		return A4(
 			$mdgriffith$elm_ui$Internal$Model$element,
 			$mdgriffith$elm_ui$Internal$Model$asEl,
@@ -14019,7 +14019,7 @@ var $author$project$ControlPanel$button48px = F5(
 					$mdgriffith$elm_ui$Element$focused(_List_Nil)
 				]),
 			{
-				a9: A2(
+				ba: A2(
 					$mdgriffith$elm_ui$Element$image,
 					_List_fromArray(
 						[
@@ -14962,7 +14962,7 @@ var $mdgriffith$elm_ui$Element$Input$slider = F2(
 			$mdgriffith$elm_ui$Element$Input$applyLabel,
 			_List_fromArray(
 				[
-					$mdgriffith$elm_ui$Element$Input$isHiddenLabel(input.a9) ? $mdgriffith$elm_ui$Internal$Model$NoAttribute : A2($mdgriffith$elm_ui$Element$spacingXY, spacingX, spacingY),
+					$mdgriffith$elm_ui$Element$Input$isHiddenLabel(input.ba) ? $mdgriffith$elm_ui$Internal$Model$NoAttribute : A2($mdgriffith$elm_ui$Element$spacingXY, spacingX, spacingY),
 					$mdgriffith$elm_ui$Element$Region$announce,
 					$mdgriffith$elm_ui$Element$width(
 					function () {
@@ -14991,7 +14991,7 @@ var $mdgriffith$elm_ui$Element$Input$slider = F2(
 						}
 					}())
 				]),
-			input.a9,
+			input.ba,
 			A2(
 				$mdgriffith$elm_ui$Element$row,
 				_List_fromArray(
@@ -15012,7 +15012,7 @@ var $mdgriffith$elm_ui$Element$Input$slider = F2(
 						$mdgriffith$elm_ui$Internal$Model$NodeName('input'),
 						_List_fromArray(
 							[
-								$mdgriffith$elm_ui$Element$Input$hiddenLabelAttribute(input.a9),
+								$mdgriffith$elm_ui$Element$Input$hiddenLabelAttribute(input.ba),
 								A2(
 								$mdgriffith$elm_ui$Internal$Model$StyleClass,
 								$mdgriffith$elm_ui$Internal$Flag$active,
@@ -15133,7 +15133,7 @@ var $author$project$ControlPanel$colorPickerSlider = F3(
 					})
 				]),
 			{
-				a9: A2(
+				ba: A2(
 					$elm$core$Maybe$withDefault,
 					$mdgriffith$elm_ui$Element$Input$labelHidden(''),
 					A2(
@@ -15352,7 +15352,7 @@ var $author$project$ControlPanel$slider = F5(
 									])))
 						]),
 					{
-						a9: $mdgriffith$elm_ui$Element$Input$labelHidden(''),
+						ba: $mdgriffith$elm_ui$Element$Input$labelHidden(''),
 						b4: max,
 						b5: min,
 						b9: msg,
@@ -15433,7 +15433,7 @@ var $author$project$ControlPanel$view = function (controlPanel) {
 						_List_fromArray(
 							[
 								$author$project$ControlPanel$controlLabel('Material color'),
-								A2($author$project$ControlPanel$colorPicker, controlPanel.bb, $author$project$ControlPanel$SetMaterialColor),
+								A2($author$project$ControlPanel$colorPicker, controlPanel.bc, $author$project$ControlPanel$SetMaterialColor),
 								$author$project$ControlPanel$controlLabel('Shadow color'),
 								A2($author$project$ControlPanel$colorPicker, controlPanel.bj, $author$project$ControlPanel$SetShadowColor),
 								$author$project$ControlPanel$controlLabel('Background color'),
@@ -15451,7 +15451,7 @@ var $author$project$ControlPanel$view = function (controlPanel) {
 								$author$project$ControlPanel$slider,
 								1,
 								7,
-								-A2($elm$core$Basics$logBase, 10, controlPanel.bd),
+								-A2($elm$core$Basics$logBase, 10, controlPanel.a9),
 								$elm$core$Maybe$Nothing,
 								$author$project$ControlPanel$SetDetail),
 								$author$project$ControlPanel$controlLabel('Glow length'),
@@ -15524,9 +15524,9 @@ var $elm_explorations$webgl$WebGL$entity = $elm_explorations$webgl$WebGL$entityW
 	_List_fromArray(
 		[$elm_explorations$webgl$WebGL$Settings$DepthTest$default]));
 var $author$project$Renderer$Shaders$fragment = {
-	src: '\n    precision highp float;\n    \n    varying vec2 vcoord;\n\n    uniform float aspectRatio;\n    uniform vec3 position;\n    uniform mat4 view;\n    uniform vec3 center;\n    uniform float size;\n\n    uniform vec3 materialColor;\n    uniform vec3 shadowColor;\n    uniform vec3 backgroundColor;\n\n    uniform float fov;\n    uniform float minHitDistance;\n    uniform float glowLength;\n\n    const int iterations = 11;\n    const int renderSteps = 50;\n\n    struct Sphere {\n        vec3 center;\n        float radius;\n    };\n\n    float sphereDistance(vec3 point, Sphere sphere) {\n        return abs(distance(point, sphere.center) - sphere.radius);\n    }\n\n    struct Cube {\n        vec3 center;\n        float side;\n    };\n\n    float cubeDistance(vec3 point, Cube cube) {\n        vec3 corner = abs(cube.center - point) - 0.5 * cube.side;\n        if (corner.x < 0.0 && corner.y < 0.0 && corner.z < 0.0) {\n            return min(abs(corner.x), min(abs(corner.y), abs(corner.z)));\n        }\n        return length(max(corner, 0.0));\n    }\n\n    float planeDistance(vec3 point, vec4 plane) {\n        return max((dot(point, plane.xyz) + plane.w) / dot(plane.xyz, plane.xyz), 0.0);\n    }\n\n    vec3 mod3(float value, vec3 point) {\n        return mod(point, value);\n    }\n\n    vec3 mirror(vec3 point, vec4 plane) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point - 2.0 * relation * plane.xyz / dot(plane.xyz, plane.xyz);\n        }\n        return point;\n    }\n\n    vec3 shift(vec3 point, vec4 plane, float by) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point + plane.xyz * by;\n        }\n        return point;\n    }\n\n    vec3 shrink(float value, vec3 origin, vec3 point) {\n        return origin + value * (point - origin);\n    }\n\n    vec3 mirror3(vec3 origin, vec3 point) {\n        return origin + abs(point - origin);\n    }\n\n    vec3 replicate3(vec3 origin, vec3 point) {\n        vec3 p = point - origin;\n        float m = min(p.x, min(p.y, p.z));\n        if (m > 0.0) {\n            return point;\n        }\n        if (p.x == m) {\n            return origin + vec3(-p.x, p.y, p.z);\n        }\n        if (p.y == m) {\n            return origin + vec3(p.x, -p.y, p.z);\n        }\n        if (p.z == m) {\n            return origin + vec3(p.x, p.y, -p.z);\n        }\n        return point;\n    }\n\n    struct Material {\n        vec3 color;\n        vec4 glow;\n        float glowLength;\n        float glowStrength;\n    };\n\n    vec3 getObjectColor(int step, Material material) {\n        float a = material.glow.a * pow(float(step) / float(renderSteps), 1.0 - material.glowStrength);\n        return material.glow.rgb * a + material.color * (1.0 - a);\n    }\n\n    vec3 getBackgroundColor(float glowFactor, vec3 background, Material material) {\n        float a = material.glow.a * exp(-glowFactor / material.glowLength);\n        return material.glow.rgb * a + background * (1.0 - a);\n    }\n\n    float mengerSpongeDistance(vec3 point) {\n        float shrinkFactor = 3.0;\n        for (int i = 0; i < iterations; i++) {\n            point = mirror3(center, point);\n            point = replicate3(center + vec3(size / 6.0), point);\n            point = shrink(shrinkFactor, center + vec3(size / 2.0), point);\n        }\n        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iterations));\n    }\n\n    vec3 march(vec3 direction, vec3 position, Material material) {\n        float glowFactor = 2000000000.;\n        float distanceWalked = 0.;\n        for (int i = 0; i < renderSteps; i++) {\n            float dist = mengerSpongeDistance(position);\n            if (dist < minHitDistance * distanceWalked || dist < 0.000001) {\n                return getObjectColor(i, material);\n            }\n            position = position + dist * direction;\n            distanceWalked += dist;\n            glowFactor = min(glowFactor, dist);\n        }\n        return getBackgroundColor(glowFactor, backgroundColor, material);\n    }\n\n    void main() {\n        Material material = Material(\n            materialColor,\n            vec4(shadowColor, 1),\n            glowLength,\n            0.0\n        );\n        float z = 1. / tan(radians(fov) / 2.);\n        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));\n        vec3 color = march(direction, position, material);\n        gl_FragColor = vec4(color, 1);\n    }\n    ',
+	src: '\n    precision highp float;\n    \n    varying vec2 vcoord;\n\n    uniform float aspectRatio;\n    uniform vec3 position;\n    uniform mat4 view;\n    uniform vec3 center;\n    uniform float size;\n\n    uniform vec3 materialColor;\n    uniform vec3 shadowColor;\n    uniform vec3 backgroundColor;\n\n    uniform float fov;\n    uniform float hitFactor;\n    uniform float glowLength;\n\n    const int numIterations = 11;\n    const int renderSteps = 50;\n\n    const float minHitDistance = 0.000001;\n\n    struct Sphere {\n        vec3 center;\n        float radius;\n    };\n\n    float sphereDistance(vec3 point, Sphere sphere) {\n        return abs(distance(point, sphere.center) - sphere.radius);\n    }\n\n    struct Cube {\n        vec3 center;\n        float side;\n    };\n\n    float cubeDistance(vec3 point, Cube cube) {\n        vec3 corner = abs(cube.center - point) - 0.5 * cube.side;\n        if (corner.x < 0.0 && corner.y < 0.0 && corner.z < 0.0) {\n            return min(abs(corner.x), min(abs(corner.y), abs(corner.z)));\n        }\n        return length(max(corner, 0.0));\n    }\n\n    float planeDistance(vec3 point, vec4 plane) {\n        return max((dot(point, plane.xyz) + plane.w) / dot(plane.xyz, plane.xyz), 0.0);\n    }\n\n    vec3 mod3(float value, vec3 point) {\n        return mod(point, value);\n    }\n\n    vec3 mirror(vec3 point, vec4 plane) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point - 2.0 * relation * plane.xyz / dot(plane.xyz, plane.xyz);\n        }\n        return point;\n    }\n\n    vec3 shift(vec3 point, vec4 plane, float by) {\n        float relation = dot(position, plane.xyz) + plane.w;\n        if (relation < 0.0) {\n            return point + plane.xyz * by;\n        }\n        return point;\n    }\n\n    vec3 shrink(float value, vec3 origin, vec3 point) {\n        return origin + value * (point - origin);\n    }\n\n    vec3 mirror3(vec3 origin, vec3 point) {\n        return origin + abs(point - origin);\n    }\n\n    vec3 replicate3(vec3 origin, vec3 point) {\n        vec3 p = point - origin;\n        float m = min(p.x, min(p.y, p.z));\n        if (m > 0.0) {\n            return point;\n        }\n        if (p.x == m) {\n            return origin + vec3(-p.x, p.y, p.z);\n        }\n        if (p.y == m) {\n            return origin + vec3(p.x, -p.y, p.z);\n        }\n        if (p.z == m) {\n            return origin + vec3(p.x, p.y, -p.z);\n        }\n        return point;\n    }\n\n    struct Material {\n        vec3 color;\n        vec4 glowColor;\n        float glowLength;\n        float glowStrength;\n    };\n\n    vec3 getObjectColor(int currentStep, Material material) {\n        float a = float(currentStep) / float(renderSteps);\n        return material.color * (1.0 - a) + shadowColor * a;\n    }\n\n    vec3 getBackgroundColor(float glowDistance, Material material) {\n        float a = material.glowColor.a * exp(-glowDistance / material.glowLength);\n        return backgroundColor * (1.0 - a) + material.glowColor.rgb * a;\n    }\n\n    float mengerSpongeDistance(vec3 point) {\n        float shrinkFactor = 3.0;\n        for (int i = 0; i < numIterations; i++) {\n            point = mirror3(center, point);\n            point = replicate3(center + vec3(size / 6.0), point);\n            point = shrink(shrinkFactor, center + vec3(size / 2.0), point);\n        }\n        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(numIterations));\n    }\n\n    vec3 march(vec3 direction, vec3 position, Material material) {\n        float glowDistance = 2000000000.;\n        float distanceWalked = 0.;\n        for (int i = 0; i < renderSteps; i++) {\n            float dist = mengerSpongeDistance(position);\n            if (dist < hitFactor * distanceWalked || dist < minHitDistance) {\n                return getObjectColor(i, material);\n            }\n            position = position + dist * direction;\n            distanceWalked += dist;\n            glowDistance = min(glowDistance, dist);\n        }\n        return getBackgroundColor(glowDistance, material);\n    }\n\n    void main() {\n        Material material = Material(\n            materialColor,\n            vec4(shadowColor, 1),\n            glowLength,\n            0.0\n        );\n        float z = 1. / tan(radians(fov) / 2.);\n        vec3 direction = mat3(view) * normalize(vec3(vcoord.x, vcoord.y / aspectRatio, z));\n        vec3 color = march(direction, position, material);\n        gl_FragColor = vec4(color, 1);\n    }\n    ',
 	attributes: {},
-	uniforms: {aspectRatio: 'cS', backgroundColor: 'a3', center: 'c5', fov: 'a4', glowLength: 'a5', materialColor: 'bb', minHitDistance: 'bd', position: 'U', shadowColor: 'bj', size: 'dW', view: 'eo'}
+	uniforms: {aspectRatio: 'cS', backgroundColor: 'a3', center: 'c5', fov: 'a4', glowLength: 'a5', hitFactor: 'a9', materialColor: 'bc', position: 'U', shadowColor: 'bj', size: 'dW', view: 'eo'}
 };
 var $elm$html$Html$Attributes$height = function (n) {
 	return A2(
@@ -15626,8 +15626,8 @@ var $author$project$Renderer$Renderer$view = F2(
 								c5: A3($elm_explorations$linear_algebra$Math$Vector3$vec3, 0, 0, 0),
 								a4: controlPanel.a4,
 								a5: controlPanel.a5,
-								bb: $author$project$Renderer$Renderer$colorToVec3(controlPanel.bb),
-								bd: controlPanel.bd,
+								a9: controlPanel.a9,
+								bc: $author$project$Renderer$Renderer$colorToVec3(controlPanel.bc),
 								U: model.v.U,
 								bj: $author$project$Renderer$Renderer$colorToVec3(controlPanel.bj),
 								dW: 2,

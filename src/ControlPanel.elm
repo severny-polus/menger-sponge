@@ -13,7 +13,7 @@ type alias ControlPanel =
     , shadowColor : Color
     , backgroundColor : Color
     , fov : Float
-    , minHitDistance : Float
+    , hitFactor : Float
     , glowLength : Float
     }
 
@@ -242,7 +242,7 @@ view controlPanel =
                 , controlLabel "Field of view"
                 , slider 60 150 controlPanel.fov (Just 1) SetFov
                 , controlLabel "Detail"
-                , slider 1 7 -(logBase 10 controlPanel.minHitDistance) Nothing SetDetail
+                , slider 1 7 -(logBase 10 controlPanel.hitFactor) Nothing SetDetail
                 , controlLabel "Glow length"
                 , slider 0 1 controlPanel.glowLength Nothing SetGlowLength
                 ]
@@ -269,7 +269,7 @@ update msg controlPanel =
             { controlPanel | fov = fov }
 
         SetDetail detail ->
-            { controlPanel | minHitDistance = 10 ^ -detail }
+            { controlPanel | hitFactor = 10 ^ -detail }
 
         SetGlowLength glowLength ->
             { controlPanel | glowLength = glowLength }

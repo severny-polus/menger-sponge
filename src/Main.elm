@@ -35,7 +35,7 @@ init _ =
             , shadowColor = rgb 0 0.2 0
             , backgroundColor = rgb 0 0.2 0.5
             , fov = 120
-            , minHitDistance = 0.0002
+            , hitFactor = 0.0002
             , glowLength = 0.1
             }
       }

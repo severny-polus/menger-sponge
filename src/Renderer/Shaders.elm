@@ -27,7 +27,7 @@ type alias Uniforms =
     , shadowColor : Vec3
     , backgroundColor : Vec3
     , fov : Float
-    , minHitDistance : Float
+    , hitFactor : Float
     , glowLength : Float
     }
 
@@ -67,11 +67,13 @@ fragment =
     uniform vec3 backgroundColor;
 
     uniform float fov;
-    uniform float minHitDistance;
+    uniform float hitFactor;
     uniform float glowLength;
 
-    const int iterations = 11;
+    const int numIterations = 11;
     const int renderSteps = 50;
+
+    const float minHitDistance = 0.000001;
 
     struct Sphere {
         vec3 center;
@@ -147,44 +149,44 @@ fragment =
 
     struct Material {
         vec3 color;
-        vec4 glow;
+        vec4 glowColor;
         float glowLength;
         float glowStrength;
     };
 
-    vec3 getObjectColor(int step, Material material) {
-        float a = material.glow.a * pow(float(step) / float(renderSteps), 1.0 - material.glowStrength);
-        return material.glow.rgb * a + material.color * (1.0 - a);
+    vec3 getObjectColor(int currentStep, Material material) {
+        float a = float(currentStep) / float(renderSteps);
+        return material.color * (1.0 - a) + shadowColor * a;
     }
 
-    vec3 getBackgroundColor(float glowFactor, vec3 background, Material material) {
-        float a = material.glow.a * exp(-glowFactor / material.glowLength);
-        return material.glow.rgb * a + background * (1.0 - a);
+    vec3 getBackgroundColor(float glowDistance, Material material) {
+        float a = material.glowColor.a * exp(-glowDistance / material.glowLength);
+        return backgroundColor * (1.0 - a) + material.glowColor.rgb * a;
     }
 
     float mengerSpongeDistance(vec3 point) {
         float shrinkFactor = 3.0;
-        for (int i = 0; i < iterations; i++) {
+        for (int i = 0; i < numIterations; i++) {
             point = mirror3(center, point);
             point = replicate3(center + vec3(size / 6.0), point);
             point = shrink(shrinkFactor, center + vec3(size / 2.0), point);
         }
-        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(iterations));
+        return cubeDistance(point, Cube(center, size)) / pow(shrinkFactor, float(numIterations));
     }
 
     vec3 march(vec3 direction, vec3 position, Material material) {
-        float glowFactor = 2000000000.;
+        float glowDistance = 2000000000.;
         float distanceWalked = 0.;
         for (int i = 0; i < renderSteps; i++) {
             float dist = mengerSpongeDistance(position);
-            if (dist < minHitDistance * distanceWalked || dist < 0.000001) {
+            if (dist < hitFactor * distanceWalked || dist < minHitDistance) {
                 return getObjectColor(i, material);
             }
             position = position + dist * direction;
             distanceWalked += dist;
-            glowFactor = min(glowFactor, dist);
+            glowDistance = min(glowDistance, dist);
         }
-        return getBackgroundColor(glowFactor, backgroundColor, material);
+        return getBackgroundColor(glowDistance, material);
     }
 
     void main() {
