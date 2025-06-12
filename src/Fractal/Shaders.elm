@@ -24,8 +24,9 @@ type alias Uniforms =
     , center : Vec3
     , size : Float
     , materialColor : Vec3
-    , shadowColor : Vec3
     , backgroundColor : Vec3
+    , shadowColor : Vec3
+    , glowColor : Vec3
     , fov : Float
     , hitFactor : Float
     , glowLength : Float
@@ -63,8 +64,9 @@ fragment =
     uniform float size;
 
     uniform vec3 materialColor;
-    uniform vec3 shadowColor;
     uniform vec3 backgroundColor;
+    uniform vec3 shadowColor;
+    uniform vec3 glowColor;
 
     uniform float fov;
     uniform float hitFactor;
@@ -155,13 +157,14 @@ fragment =
     };
 
     vec3 getObjectColor(int currentStep, Material material) {
-        float a = float(currentStep) / float(renderSteps);
-        return material.color * (1.0 - a) + shadowColor * a;
+        float shadowOpacity = float(currentStep) / float(renderSteps);
+        float glowOpacity = pow(shadowOpacity, 2.0);
+        return glowOpacity * material.glowColor.rgb + (1.0 - glowOpacity) * (shadowOpacity * shadowColor + (1.0 - shadowOpacity) * material.color);
     }
 
     vec3 getBackgroundColor(float glowDistance, Material material) {
         float a = material.glowColor.a * exp(-glowDistance / material.glowLength);
-        return backgroundColor * (1.0 - a) + material.glowColor.rgb * a;
+        return a * material.glowColor.rgb + (1.0 - a) * backgroundColor;
     }
 
     float mengerSpongeDistance(vec3 point) {
@@ -192,7 +195,7 @@ fragment =
     void main() {
         Material material = Material(
             materialColor,
-            vec4(shadowColor, 1),
+            vec4(glowColor, 1),
             glowLength,
             0.0
         );

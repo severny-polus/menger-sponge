@@ -2,6 +2,7 @@ module Components.ControlPanel exposing (..)
 
 import Components.ColorPicker as ColorPicker
 import Components.Slider as Slider exposing (Slider)
+import Components.Toggle exposing (toggle)
 import Dict exposing (Dict)
 import Element exposing (Color, Element, alignRight, alignTop, column, el, fill, focused, height, image, mouseDown, mouseOver, padding, px, rgb, rgba, row, spacing, text, width)
 import Element.Background as Background
@@ -60,7 +61,7 @@ init =
             , ( shadowColor, rgb 0 0.2 0 )
             , ( glowColor, rgb 0 0.2 0 )
             ]
-    , bindGlowColor = True
+    , bindGlowColor = False
     , fov = Slider.init 120
     , detail = Slider.init <| -(logBase 10 0.0002)
     , glowLength = Slider.init 0.1
@@ -120,9 +121,9 @@ getColor token controlPanel =
     Maybe.withDefault (rgb 0 0 0) <| Dict.get token controlPanel.colors
 
 
-colorPicker : String -> ColorToken -> ControlPanel -> Element Msg
-colorPicker label token controlPanel =
-    labeled label <| ColorPicker.colorPicker (getColor token controlPanel) <| SetColor token
+colorPicker : ColorToken -> ControlPanel -> Element Msg
+colorPicker token controlPanel =
+    ColorPicker.colorPicker (getColor token controlPanel) <| SetColor token
 
 
 view : ControlPanel -> Element Msg
@@ -148,10 +149,11 @@ view controlPanel =
                 , padding 16
                 , spacing 16
                 ]
-                [ colorPicker "Material color" materialColor controlPanel
-                , colorPicker "Background color" backgroundColor controlPanel
-                , colorPicker "Shadow color" shadowColor controlPanel
-                , colorPicker "Glow color" glowColor controlPanel
+                [ labeled "Material color" <| colorPicker materialColor controlPanel
+                , labeled "Background color" <| colorPicker backgroundColor controlPanel
+                , labeled "Shadow color" <| colorPicker shadowColor controlPanel
+                , labeled "Glow color" <| colorPicker glowColor controlPanel
+                -- , labeled "Bind glow color" <| toggle controlPanel.bindGlowColor BindGlowColor
                 , labeled "Field of view" <| Element.map SetFov <| Slider.slider 60 150 controlPanel.fov (Just 1)
                 , labeled "Detail" <| Element.map SetDetail <| Slider.slider 1 6 controlPanel.detail Nothing
                 , labeled "Glow length" <| Element.map SetGlowLength <| Slider.slider 0 1 controlPanel.glowLength Nothing
@@ -189,7 +191,15 @@ update msg controlPanel =
             }
 
         BindGlowColor flag ->
-            { controlPanel | bindGlowColor = flag }
+            { controlPanel
+                | bindGlowColor = flag
+                , colors =
+                    if flag then
+                        Dict.update glowColor (\_ -> Dict.get shadowColor controlPanel.colors) controlPanel.colors
+
+                    else
+                        controlPanel.colors
+            }
 
         SetFov fov ->
             { controlPanel | fov = Slider.update fov controlPanel.fov }

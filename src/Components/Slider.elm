@@ -102,15 +102,14 @@ slider min max model step =
             ]
         , Element.Input.text
             [ width <| px 48
-            , focused
-                [ Border.color Palette.focusColor
-                , Border.glow (rgba 0 0 0 0) 0
-                ]
             , padding 8
             , Background.color <| rgba 1 1 1 0.1
             , Border.color <| rgb 0.8 0.8 0.8
-            , Border.width 2
+            , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
             , Border.rounded 0
+            , focused
+                [ Border.glow Palette.colorFocus 2
+                ]
             ]
             { onChange = ChangeText
             , text = model.text

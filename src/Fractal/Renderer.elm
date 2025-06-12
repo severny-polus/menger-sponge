@@ -2,7 +2,7 @@ port module Fractal.Renderer exposing (..)
 
 import Browser.Dom
 import Browser.Events
-import Components.ControlPanel exposing (ControlPanel, backgroundColor, getColor, materialColor, shadowColor)
+import Components.ControlPanel exposing (ControlPanel, backgroundColor, getColor, glowColor, materialColor, shadowColor)
 import Dict exposing (keys)
 import Element exposing (Color, Element)
 import Fractal.Orientation.Vertical as Vertical exposing (Vertical)
@@ -164,6 +164,7 @@ view controlPanel model =
                     , materialColor = controlPanel |> getColor materialColor |> colorToVec3
                     , shadowColor = controlPanel |> getColor shadowColor |> colorToVec3
                     , backgroundColor = controlPanel |> getColor backgroundColor |> colorToVec3
+                    , glowColor = controlPanel |> getColor glowColor |> colorToVec3
                     , fov = controlPanel.fov.value
                     , hitFactor = 10 ^ -controlPanel.detail.value
                     , glowLength = controlPanel.glowLength.value
