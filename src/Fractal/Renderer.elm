@@ -1,16 +1,16 @@
-port module Renderer.Renderer exposing (..)
+port module Fractal.Renderer exposing (..)
 
 import Browser.Dom
 import Browser.Events
-import ControlPanel exposing (ControlPanel)
+import Components.ControlPanel exposing (ControlPanel, backgroundColor, getColor, materialColor, shadowColor)
 import Dict exposing (keys)
 import Element exposing (Color, Element)
+import Fractal.Orientation.Vertical as Vertical exposing (Vertical)
+import Fractal.Player exposing (Player)
+import Fractal.Shaders as Shaders
 import Html.Attributes
 import Json.Decode as Decode
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
-import Renderer.Orientation.Vertical as Vertical exposing (Vertical)
-import Renderer.Player exposing (Player)
-import Renderer.Shaders as Shaders
 import Task
 import WebGL exposing (Mesh)
 
@@ -107,7 +107,7 @@ init _ =
     ( { canvasSize = { width = 0, height = 0 }
       , pressedKeys = initKeys
       , player =
-            Renderer.Player.init (vec3 0 0 0) <|
+            Fractal.Player.init (vec3 0 0 0) <|
                 Vertical.asOrientation
                     { phi = pi / 4
                     , theta = 0
@@ -161,9 +161,9 @@ view controlPanel model =
                     , view = model.player.view
                     , center = vec3 0 0 0
                     , size = 2
-                    , materialColor = colorToVec3 controlPanel.materialColor
-                    , shadowColor = colorToVec3 controlPanel.shadowColor
-                    , backgroundColor = colorToVec3 controlPanel.backgroundColor
+                    , materialColor = controlPanel |> getColor materialColor |> colorToVec3
+                    , shadowColor = controlPanel |> getColor shadowColor |> colorToVec3
+                    , backgroundColor = controlPanel |> getColor backgroundColor |> colorToVec3
                     , fov = controlPanel.fov.value
                     , hitFactor = 10 ^ -controlPanel.detail.value
                     , glowLength = controlPanel.glowLength.value
@@ -232,7 +232,7 @@ update msg model =
                     deltaTimeMilliseconds / 1000
             in
             ( { model
-                | player = model.player |> Renderer.Player.handle dt
+                | player = model.player |> Fractal.Player.handle dt
               }
             , Cmd.none
             )
@@ -244,7 +244,7 @@ update msg model =
             in
             ( { model
                 | pressedKeys = pressedKeys
-                , player = model.player |> Renderer.Player.updateVelocity (calculateVelocity pressedKeys)
+                , player = model.player |> Fractal.Player.updateVelocity (calculateVelocity pressedKeys)
               }
             , Cmd.none
             )
@@ -262,7 +262,7 @@ update msg model =
                         sensitivity * toFloat dy
                 in
                 ( { model
-                    | player = Renderer.Player.rotate dphi dtheta model.player
+                    | player = Fractal.Player.rotate dphi dtheta model.player
                   }
                 , Cmd.none
                 )

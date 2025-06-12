@@ -2,12 +2,11 @@ module Main exposing (main)
 
 import Browser
 import Browser.Dom
-import ControlPanel exposing (ControlPanel)
-import Element exposing (alignRight, el, fill, height, htmlAttribute, inFront, layout, rgb, rgba, row, width)
+import Components.ControlPanel as ControlPanel exposing (ControlPanel)
+import Element exposing (alignRight, el, fill, height, htmlAttribute, inFront, layout, rgba, row, width)
+import Fractal.Renderer as Renderer
 import Html exposing (Html)
 import Html.Attributes
-import Renderer.Renderer as Renderer
-import Slider
 import Task
 
 
@@ -32,13 +31,7 @@ init _ =
     ( { renderer = renderer
       , controlPanelOpened = False
       , controlPanel =
-            { materialColor = rgb 1 0.7 0.2
-            , shadowColor = rgb 0 0.2 0
-            , backgroundColor = rgb 0 0.2 0.5
-            , fov = Slider.init 120
-            , detail = Slider.init <| -(logBase 10 0.0002)
-            , glowLength = Slider.init 0.1
-            }
+            ControlPanel.init
       }
     , Cmd.batch
         [ rendererCmd |> Cmd.map RendererMsg
@@ -68,10 +61,10 @@ view model =
                     else
                         el [ alignRight ] <|
                             ControlPanel.button48px
-                                "svg/settings--adjust-white.svg"
+                                "resources/settings--adjust-white.svg"
                                 (rgba 1 1 1 0)
+                                (rgba 1 1 1 0.05)
                                 (rgba 1 1 1 0.1)
-                                (rgba 1 1 1 0.2)
                             <|
                                 ControlPanelMsg <|
                                     ControlPanel.Open True

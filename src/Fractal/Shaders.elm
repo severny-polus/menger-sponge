@@ -1,4 +1,4 @@
-module Renderer.Shaders exposing (..)
+module Fractal.Shaders exposing (..)
 
 import Math.Matrix4 exposing (Mat4)
 import Math.Vector2 exposing (Vec2, vec2)

@@ -1,8 +1,8 @@
-module Renderer.Player exposing (..)
+module Fractal.Player exposing (..)
 
 import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (Vec3, vec3)
-import Renderer.Orientation exposing (Orientation)
+import Fractal.Orientation exposing (Orientation)
 
 
 type alias Player a =
@@ -17,7 +17,7 @@ type alias Player a =
 makeAbsoluteVelocity : Orientation a -> Vec3 -> Vec3
 makeAbsoluteVelocity orientation relativeVelocity =
     relativeVelocity
-        |> Mat4.transform (orientation |> Renderer.Orientation.basis)
+        |> Mat4.transform (orientation |> Fractal.Orientation.basis)
 
 
 init : Vec3 -> Orientation a -> Player a
@@ -26,7 +26,7 @@ init position orientation =
     , relativeVelocity = vec3 0 0 0
     , absoluteVelocity = makeAbsoluteVelocity orientation (vec3 0 0 0)
     , orientation = orientation
-    , view = orientation |> Renderer.Orientation.view
+    , view = orientation |> Fractal.Orientation.view
     }
 
 
@@ -76,10 +76,10 @@ rotate : Float -> Float -> Player a -> Player a
 rotate dphi dtheta player =
     let
         orientation =
-            Renderer.Orientation.rotate dphi dtheta player.orientation
+            Fractal.Orientation.rotate dphi dtheta player.orientation
     in
     { player
         | orientation = orientation
-        , view = Renderer.Orientation.view orientation
+        , view = Fractal.Orientation.view orientation
         , absoluteVelocity = makeAbsoluteVelocity orientation player.relativeVelocity
     }

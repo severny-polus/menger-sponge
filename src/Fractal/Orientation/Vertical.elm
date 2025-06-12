@@ -1,8 +1,8 @@
-module Renderer.Orientation.Vertical exposing (..)
+module Fractal.Orientation.Vertical exposing (..)
 
 import Math.Matrix4 as Mat4 exposing (Mat4)
-import Renderer.Orientation exposing (Orientation)
-import Renderer.World
+import Fractal.Orientation exposing (Orientation)
+import Fractal.World
 
 
 type alias Vertical =
@@ -13,14 +13,14 @@ type alias Vertical =
 
 basis : Vertical -> Mat4
 basis vertical =
-    Mat4.makeRotate vertical.phi Renderer.World.up
+    Mat4.makeRotate vertical.phi Fractal.World.up
 
 
 view : Vertical -> Mat4
 view vertical =
     Mat4.mul
-        (Mat4.makeRotate vertical.phi Renderer.World.up)
-        (Mat4.makeRotate vertical.theta Renderer.World.right)
+        (Mat4.makeRotate vertical.phi Fractal.World.up)
+        (Mat4.makeRotate vertical.theta Fractal.World.right)
 
 
 rotate : Float -> Float -> Vertical -> Vertical

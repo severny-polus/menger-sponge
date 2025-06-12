@@ -1,4 +1,4 @@
-module Renderer.Orientation exposing (..)
+module Fractal.Orientation exposing (..)
 
 import Math.Matrix4 exposing (Mat4)
 

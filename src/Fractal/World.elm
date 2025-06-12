@@ -1,4 +1,4 @@
-module Renderer.World exposing (..)
+module Fractal.World exposing (..)
 
 import Math.Vector3 exposing (Vec3, vec3)
 
